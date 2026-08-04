@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Muslim Dashboard",
+  "version": "1.0.0",
+  "description": "Personal dashboard for Muslims with prayer times, Islamic quotes, and TODO list",
+  "author": "Ahmad Abulkhair",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "geolocation",
+    "notifications",
+    "storage",
+    "alarms"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    },
+    "default_title": "Muslim Dashboard"
+  }
+}

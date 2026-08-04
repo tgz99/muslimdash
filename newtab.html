@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muslim Dashboard</title>
+  <link rel="stylesheet" href="newtab.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Background Overlay -->
+    <div class="bg-overlay"></div>
+    
+    <!-- Top Left: Prayer Times -->
+    <div class="prayer-times card">
+      <div class="card-header">
+        <h2>🕌 Jadwal Sholat</h2>
+        <div class="location-info">
+          <span id="location-name">Mendapatkan lokasi...</span>
+          <span id="current-date"></span>
+        </div>
+      </div>
+      <div class="prayer-list">
+        <div class="prayer-item" data-prayer="fajr">
+          <span class="prayer-name">Subuh</span>
+          <span class="prayer-time" id="fajr-time">--:--</span>
+        </div>
+        <div class="prayer-item" data-prayer="sunrise">
+          <span class="prayer-name">Terbit</span>
+          <span class="prayer-time" id="sunrise-time">--:--</span>
+        </div>
+        <div class="prayer-item" data-prayer="dhuhr">
+          <span class="prayer-name">Dzuhur</span>
+          <span class="prayer-time" id="dhuhr-time">--:--</span>
+        </div>
+        <div class="prayer-item" data-prayer="asr">
+          <span class="prayer-name">Ashar</span>
+          <span class="prayer-time" id="asr-time">--:--</span>
+        </div>
+        <div class="prayer-item" data-prayer="maghrib">
+          <span class="prayer-name">Maghrib</span>
+          <span class="prayer-time" id="maghrib-time">--:--</span>
+        </div>
+        <div class="prayer-item" data-prayer="isha">
+          <span class="prayer-name">Isya</span>
+          <span class="prayer-time" id="isha-time">--:--</span>
+        </div>
+      </div>
+      <div class="next-prayer">
+        <span>Waktu sholat selanjutnya: <strong id="next-prayer-name">-</strong> dalam <strong id="next-prayer-countdown">--:--</strong></span>
+      </div>
+      <div class="prayer-method-select">
+        <label for="prayer-method">Metode:</label>
+        <select id="prayer-method">
+          <option value="20">Kemenag RI</option>
+          <option value="local">Algoritma Standar (Lokal)</option>
+          <option value="3">Muslim World League</option>
+          <option value="2">Islamic Society of North America (ISNA)</option>
+          <option value="5">Egyptian General Authority of Survey</option>
+          <option value="4">Umm al-Qura University, Makkah</option>
+          <option value="1">University of Islamic Sciences, Karachi</option>
+          <option value="11">Majlis Ugama Islam Singapura (MUIS)</option>
+        </select>
+      </div>
+      <div class="prayer-source" id="prayer-source">
+        Sumber: Perhitungan Algoritma Standar (Metode Umum)
+      </div>
+    </div>
+
+    <!-- Center: Clock, Greeting & Quotes -->
+    <div class="center-section">
+      <div class="clock" id="clock">00:00</div>
+      <div class="greeting" id="greeting">Assalamualaikum</div>
+      
+      <div class="quotes-section">
+        <div class="quote-container">
+          <p class="quote-text" id="quote-text">Memuat quote...</p>
+          <p class="quote-source" id="quote-source"></p>
+        </div>
+        <div class="quote-controls">
+          <button id="prev-quote" title="Quote sebelumnya">‹</button>
+          <button id="next-quote" title="Quote selanjutnya">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Todo List -->
+    <div class="todo-list card">
+      <div class="card-header">
+        <h2>📝 Todo List</h2>
+      </div>
+      <div class="todo-input-container">
+        <input type="text" id="todo-input" placeholder="Tambahkan tugas..." maxlength="100">
+        <button id="add-todo">+</button>
+      </div>
+      <ul class="todo-items" id="todo-items">
+        <!-- Todo items will be added here -->
+      </ul>
+      <div class="weather-info" id="weather-info">
+        <div class="weather-main">
+          <span class="weather-icon" id="weather-icon">--</span>
+          <span class="weather-temp" id="weather-temp">--°C</span>
+        </div>
+        <span class="weather-desc" id="weather-desc">Memuat cuaca...</span>
+      </div>
+    </div>
+
+    <!-- Bottom: Internet Status, Location, Hijri & Settings -->
+    <div class="bottom-bar">
+      <div class="bottom-left">
+        <div class="internet-status" id="internet-status">
+          <span class="status-dot online"></span>
+          <span class="status-text">Online</span>
+        </div>
+        <div class="location-hijri" id="location-hijri">
+          <span id="current-location">-</span>
+          <span class="divider">•</span>
+          <span id="hijri-date">-</span>
+        </div>
+      </div>
+      <div class="settings">
+        <select id="language-select">
+          <option value="id">Bahasa Indonesia</option>
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <script src="newtab.js"></script>
+</body>
+</html>
