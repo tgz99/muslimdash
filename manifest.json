@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Muslim Dashboard",
-  "version": "1.1.0",
-  "description": "Personal dashboard for Muslims with prayer times, Islamic quotes, and TODO list",
+  "version": "1.2.0",
+  "description": "Islamic dashboard on every new tab: prayer times, qibla direction, upcoming Islamic events, daily reminders, todo & weather.",
   "author": "Ahmad Abulkhair",
   "icons": {
     "16": "icons/icon16.png",

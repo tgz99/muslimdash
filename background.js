@@ -13,6 +13,25 @@ const prayerNames = {
 };
 
 let notifLang = 'id';
+let reminderLang = 'id';
+
+function showDailyReminderNotification(lang = 'id') {
+  const title = lang === 'ar' ? 'الأعمال اليومية' : lang === 'en' ? 'Daily Deeds' : 'Amalan Harian';
+  const message = lang === 'ar'
+    ? 'وقت لطيف لأذكارك وتلاوة القرآن اليوم 🌙'
+    : lang === 'en'
+    ? "A gentle nudge for today's dhikr & Qur'an reading 🌙"
+    : 'Waktu buat dzikir & tilawah Al-Qur\'an hari ini 🌙';
+
+  if (browserAPI.notifications) {
+    browserAPI.notifications.create(`daily-reminder-notif-${Date.now()}`, {
+      type: 'basic',
+      iconUrl: 'icons/icon128.png',
+      title: title,
+      message: message
+    });
+  }
+}
 
 function showPrayerNotification(prayerKey, lang = 'id') {
   const names = prayerNames[lang] || prayerNames.id;
@@ -52,7 +71,26 @@ async function rescheduleAlarms(schedule) {
   }
 }
 
+/**
+ * Schedule (or reschedule) the once-daily dzikir/Qur'an reminder at the
+ * given local hour:minute. periodInMinutes makes it repeat every 24h on
+ * its own — no need for the page to re-send this every day.
+ */
+async function rescheduleDailyReminder(hour, minute) {
+  const target = new Date();
+  target.setHours(hour, minute, 0, 0);
+  if (target.getTime() <= Date.now()) {
+    target.setDate(target.getDate() + 1);
+  }
+  await browserAPI.alarms.clear('daily-reminder');
+  browserAPI.alarms.create('daily-reminder', { when: target.getTime(), periodInMinutes: 24 * 60 });
+}
+
 browserAPI.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === 'daily-reminder') {
+    showDailyReminderNotification(reminderLang);
+    return;
+  }
   if (!alarm.name.startsWith('prayer-')) return;
   const prayerKey = alarm.name.slice('prayer-'.length);
   showPrayerNotification(prayerKey, notifLang);
@@ -73,6 +111,10 @@ browserAPI.runtime.onMessage.addListener((message) => {
   if (message.type === 'SCHEDULE_PRAYER_ALARMS') {
     notifLang = message.lang || 'id';
     rescheduleAlarms(message.schedule);
+  }
+  if (message.type === 'SCHEDULE_DAILY_REMINDER') {
+    reminderLang = message.lang || 'id';
+    rescheduleDailyReminder(message.hour, message.minute);
   }
 });
 

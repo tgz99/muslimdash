@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muslim Dashboard — a new tab, made mindful</title>
+<meta name="description" content="A browser extension that turns every new tab into prayer times, Qibla direction, upcoming Islamic dates, and a gentle daily nudge for dhikr &amp; Qur'an.">
+<link rel="icon" href="icons/icon32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Amiri:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a1620;
+    --bg-deep: #060d13;
+    --card: #14232a;
+    --card-soft: rgba(255,255,255,0.035);
+    --primary: #1a5f3f;
+    --primary-bright: #2ecc71;
+    --gold: #d4af37;
+    --gold-soft: #e8c766;
+    --text: #f2ede1;
+    --muted: #97a29b;
+    --border: rgba(255,255,255,0.09);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Poppins', -apple-system, 'Segoe UI', sans-serif;
+    font-weight: 300;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; display: block; }
+
+  a { color: inherit; }
+
+  .arabic {
+    font-family: 'Amiri', serif;
+    font-style: italic;
+  }
+
+  /* ================= Background atmosphere ================= */
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(26,95,63,0.35), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(212,175,55,0.10), transparent 55%),
+      linear-gradient(180deg, var(--bg-deep) 0%, var(--bg) 40%, var(--bg) 100%);
+  }
+
+  /* ================= Layout shell ================= */
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  section { padding: 96px 0; }
+
+  @media (max-width: 720px) {
+    section { padding: 64px 0; }
+  }
+
+  /* ================= Nav ================= */
+  header.nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(14px);
+    background: rgba(10, 22, 32, 0.72);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+  }
+
+  .brand img { width: 26px; height: 26px; border-radius: 6px; }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .nav-links a { text-decoration: none; transition: color 0.2s ease; }
+  .nav-links a:hover { color: var(--gold-soft); }
+
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+  }
+
+  /* ================= Hero ================= */
+  .hero {
+    padding: 88px 0 40px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    background: rgba(212,175,55,0.09);
+    border: 1px solid rgba(212,175,55,0.25);
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin: 0 auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.1rem, 5vw, 3.4rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin: 22px auto 0;
+    max-width: 780px;
+    text-wrap: balance;
+  }
+
+  .hero h1 .accent { color: var(--gold); }
+
+  .hero p.sub {
+    max-width: 560px;
+    margin: 18px auto 0;
+    color: var(--muted);
+    font-size: 1.05rem;
+    font-weight: 300;
+  }
+
+  .cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 26px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    border: 1px solid transparent;
+  }
+
+  .btn:hover { transform: translateY(-2px); }
+  .btn:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #21714b; }
+
+  .btn-ghost {
+    background: var(--card-soft);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold-soft); }
+
+  .pill-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    padding: 8px 4px;
+  }
+
+  .dot-pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--primary-bright);
+    box-shadow: 0 0 0 0 rgba(46,204,113,0.6);
+    animation: pulse 2.2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.5); }
+    70% { box-shadow: 0 0 0 7px rgba(46,204,113,0); }
+    100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+  }
+
+  /* ================= Screenshot frame ================= */
+  .frame-wrap {
+    max-width: 900px;
+    margin: 10px auto 0;
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+    animation: rise 0.9s cubic-bezier(.2,.7,.2,1) 0.15s forwards;
+  }
+
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .browser-chrome {
+    background: linear-gradient(180deg, #1c2b33, #16232a);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.02);
+  }
+
+  .browser-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dots { display: flex; gap: 6px; }
+  .dots span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+
+  .url-pill {
+    flex: 1;
+    max-width: 320px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.05);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 0.74rem;
+    color: var(--muted);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .browser-chrome img { width: 100%; }
+
+  /* ================= Section headings ================= */
+  .section-head {
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto 52px;
+  }
+
+  .section-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    margin-bottom: 10px;
+  }
+
+  .section-head h2 {
+    font-size: clamp(1.6rem, 3.2vw, 2.15rem);
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+
+  .section-head p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  /* rub el-hizb divider */
+  .motif {
+    display: block;
+    margin: 0 auto 18px;
+    opacity: 0.75;
+  }
+
+  /* ================= Feature grid ================= */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .feature {
+    background: var(--card-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 22px;
+    transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+  }
+
+  .feature:hover {
+    border-color: rgba(212,175,55,0.35);
+    background: rgba(255,255,255,0.05);
+    transform: translateY(-3px);
+  }
+
+  .feature .icon {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    background: rgba(26,95,63,0.35);
+    border: 1px solid rgba(46,204,113,0.25);
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .feature h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  .feature p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ================= Trust strip ================= */
+  .trust {
+    background: linear-gradient(135deg, rgba(26,95,63,0.18), rgba(212,175,55,0.06));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  @media (max-width: 800px) {
+    .trust { grid-template-columns: 1fr; padding: 34px 26px; }
+  }
+
+  .trust h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0 0 14px;
+    letter-spacing: -0.3px;
+  }
+
+  .trust p { color: var(--muted); margin: 0 0 18px; font-size: 0.96rem; }
+
+  .trust-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .trust-list li {
+    display: flex;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .trust-list li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 6px; height: 6px;
+    margin-top: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .quote-card {
+    background: rgba(0,0,0,0.28);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 26px;
+  }
+
+  .quote-card .arabic {
+    font-size: 1.4rem;
+    color: var(--gold-soft);
+    display: block;
+    margin-bottom: 10px;
+    line-height: 1.9;
+  }
+
+  .quote-card .translation {
+    font-size: 0.88rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .quote-card .source {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--gold);
+  }
+
+  /* ================= Language strip ================= */
+  .langs {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+
+  .lang-chip {
+    border: 1px solid var(--border);
+    background: var(--card-soft);
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* ================= Install ================= */
+  .install {
+    text-align: center;
+  }
+
+  .install-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    max-width: 620px;
+    margin: 40px auto 0;
+  }
+
+  @media (max-width: 620px) {
+    .install-cards { grid-template-columns: 1fr; }
+  }
+
+  .install-card {
+    background: var(--card-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 22px;
+  }
+
+  .install-card .browser-name {
+    font-weight: 600;
+    font-size: 1.02rem;
+    margin-bottom: 6px;
+  }
+
+  .install-card .status {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  .status.pending { color: var(--gold-soft); }
+
+  /* ================= Footer ================= */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 22px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .footer-links a { text-decoration: none; }
+  .footer-links a:hover { color: var(--gold-soft); }
+
+  .footer-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="sky"></div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <img src="icons/icon32.png" alt="">
+      Muslim Dashboard
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#privacy-trust">Privacy</a>
+      <a href="#install">Install</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </nav>
+  </div>
+</header>
+
+<div id="top"></div>
+
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <span class="eyebrow">🕌 A new-tab browser extension</span>
+      <h1>Turn every new tab into a moment of <span class="accent">mindfulness</span>.</h1>
+      <p class="sub">Prayer times, Qibla direction, upcoming Islamic dates, and a gentle daily nudge for dhikr &amp; Qur'an — waiting for you before you even open a new site.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/tgz99/muslimdash" target="_blank" rel="noopener">View on GitHub</a>
+        <a class="btn btn-ghost" href="#install">How to install</a>
+      </div>
+      <div class="cta-row" style="margin-top: 6px;">
+        <span class="pill-status"><span class="dot-pulse"></span> Actively developed &amp; open source</span>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="browser-chrome">
+        <div class="browser-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="url-pill">new tab</div>
+        </div>
+        <img src="screenshot-1280x800.png" alt="Muslim Dashboard shown on a browser new tab — prayer times, qibla, quote of the moment, todo list, and daily reminders">
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="section-head">
+      <div class="section-eyebrow">What's on your tab</div>
+      <h2>Everything for a mindful day, in one glance</h2>
+      <p>No extra clicks, no separate apps — it's the first thing you see.</p>
+    </div>
+
+    <div class="grid">
+      <div class="feature">
+        <div class="icon">🕌</div>
+        <h3>Prayer Times</h3>
+        <p>Calculated for your exact location, with 7 methods to choose from — including Indonesia's official Kemenag RI.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🧭</div>
+        <h3>Qibla Direction</h3>
+        <p>A precise bearing to the Ka'bah, computed the moment your location is known — no separate compass app.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🌙</div>
+        <h3>Upcoming Islamic Dates</h3>
+        <p>A running countdown to Ramadan, Eid al-Fitr, Eid al-Adha, and the rest of the Hijri calendar's milestones.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📿</div>
+        <h3>Daily Reminders</h3>
+        <p>One gentle nudge a day for dhikr and Qur'an reading, at a time you choose — never naggy, never five-times-a-day loud.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📖</div>
+        <h3>Qur'an &amp; Hadith</h3>
+        <p>A rotating quote to sit with, in Indonesian, English, or Arabic — sourced and cited every time.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📝</div>
+        <h3>Todo &amp; Weather</h3>
+        <p>A quiet to-do list with backup/restore, plus the day's weather — the practical half of your morning glance.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy-trust">
+    <div class="trust">
+      <div>
+        <h2>Built to stay quiet about you</h2>
+        <p>No backend, no accounts, no analytics. Your data stays on your device — full stop.</p>
+        <ul class="trust-list">
+          <li>To-dos, preferences, and reminders live only in your browser's local storage.</li>
+          <li>Location is sent straight to the prayer-time &amp; weather APIs that need it — never to a server of ours, because none exists.</li>
+          <li>No ads, no trackers, no sign-up.</li>
+        </ul>
+        <div class="cta-row" style="justify-content: flex-start; margin-top: 24px;">
+          <a class="btn btn-ghost" href="privacy.html">Read the full privacy policy →</a>
+        </div>
+      </div>
+      <div class="quote-card">
+        <span class="arabic">إِنَّ مَعَ الْعُسْرِ يُسْرًا</span>
+        <span class="translation">"Verily, with hardship comes ease."</span>
+        <span class="source">— Qur'an, Ash-Sharh 94:6 · shown on the new-tab quote card</span>
+      </div>
+    </div>
+
+    <div class="langs">
+      <span class="lang-chip">🇮🇩 Bahasa Indonesia</span>
+      <span class="lang-chip">🇬🇧 English</span>
+      <span class="lang-chip">🇸🇦 العربية</span>
+    </div>
+  </section>
+
+  <section id="install" class="install">
+    <div class="section-head">
+      <div class="section-eyebrow">Get it</div>
+      <h2>Free, open source, and yours to inspect</h2>
+      <p>The full source is on GitHub — read it, fork it, or just install it.</p>
+    </div>
+
+    <div class="install-cards">
+      <div class="install-card">
+        <div class="browser-name">🦊 Firefox</div>
+        <div class="status">Load as a temporary add-on today</div>
+        <a class="btn btn-primary" href="https://github.com/tgz99/muslimdash#cara-install" target="_blank" rel="noopener">Install instructions</a>
+      </div>
+      <div class="install-card">
+        <div class="browser-name">🌐 Chrome</div>
+        <div class="status pending">Submitted — pending Chrome Web Store review</div>
+        <a class="btn btn-ghost" href="https://github.com/tgz99/muslimdash" target="_blank" rel="noopener">Follow progress on GitHub</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="footer-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="https://github.com/tgz99/muslimdash" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/tgz99/muslimdash/issues" target="_blank" rel="noopener">Report an issue</a>
+    </div>
+    <div class="footer-note">Made by Ahmad Abulkhair · Muslim Dashboard is free and open source</div>
+  </div>
+</footer>
+
+</body>
+</html>

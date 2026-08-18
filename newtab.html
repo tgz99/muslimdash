@@ -124,6 +124,28 @@
       <ul class="todo-items" id="todo-items">
         <!-- Todo items will be added here -->
       </ul>
+
+      <div class="daily-reminders" id="daily-reminders">
+        <div class="reminders-header">
+          <span class="reminders-title" id="reminders-title">✨ Amalan Harian</span>
+          <button id="reminder-time-toggle" class="reminder-time-btn" title="Atur jam pengingat">🕐</button>
+        </div>
+        <div class="reminder-time-form" id="reminder-time-form" style="display:none">
+          <input type="time" id="reminder-time-input" value="20:00">
+          <button id="reminder-time-save">Simpan</button>
+        </div>
+        <div class="reminder-item" id="reminder-dzikir" data-reminder="dzikir">
+          <span class="reminder-icon">📿</span>
+          <span class="reminder-text" id="reminder-dzikir-text">Dzikir Pagi &amp; Petang</span>
+          <button class="reminder-check" id="reminder-dzikir-check" title="Tandai selesai hari ini">✓</button>
+        </div>
+        <div class="reminder-item" id="reminder-quran" data-reminder="quran">
+          <span class="reminder-icon">📖</span>
+          <span class="reminder-text" id="reminder-quran-text">Tilawah Al-Qur'an</span>
+          <button class="reminder-check" id="reminder-quran-check" title="Tandai selesai hari ini">✓</button>
+        </div>
+      </div>
+
       <div class="weather-info" id="weather-info">
         <div class="weather-main">
           <span class="weather-icon" id="weather-icon">--</span>
@@ -144,9 +166,15 @@
           <span id="current-location">-</span>
           <span class="divider">•</span>
           <span id="hijri-date">-</span>
+          <span class="divider" id="event-divider" style="display:none">•</span>
+          <span id="upcoming-event" class="upcoming-event" style="display:none"></span>
         </div>
       </div>
       <div class="settings">
+        <select id="event-ref" title="Referensi tanggal hari besar Islam" style="display:none">
+          <option value="id" selected>Indonesia (Kemenag)</option>
+          <option value="global">Global (Hisab)</option>
+        </select>
         <span class="leadtime-icon" title="Notifikasi sebelum waktu sholat">🔔</span>
         <select id="notif-leadtime">
           <option value="1">1 min</option>

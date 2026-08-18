@@ -132,7 +132,17 @@ const translations = {
     manualUseGps: 'Pakai GPS',
     manualLatPlaceholder: 'Lintang (mis. -8.0983)',
     manualLngPlaceholder: 'Bujur (mis. 112.4472)',
-    manualInvalid: 'Lintang harus -90..90, Bujur harus -180..180'
+    manualInvalid: 'Lintang harus -90..90, Bujur harus -180..180',
+    eventToday: 'Hari ini',
+    eventDaysLeft: 'hari lagi',
+    eventIsbatNote: 'estimasi, nunggu Sidang Isbat Kemenag',
+    eventHisabNote: 'hasil hisab global',
+    remindersTitle: '✨ Amalan Harian',
+    reminderDzikirText: 'Dzikir Pagi & Petang',
+    reminderQuranText: 'Tilawah Al-Qur\'an',
+    reminderCheckTitle: 'Tandai selesai hari ini',
+    reminderTimeTitle: 'Atur jam pengingat',
+    reminderTimeSave: 'Simpan'
   },
   en: {
     fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
@@ -160,7 +170,17 @@ const translations = {
     manualUseGps: 'Use GPS',
     manualLatPlaceholder: 'Latitude (e.g. -8.0983)',
     manualLngPlaceholder: 'Longitude (e.g. 112.4472)',
-    manualInvalid: 'Latitude must be -90..90, longitude -180..180'
+    manualInvalid: 'Latitude must be -90..90, longitude -180..180',
+    eventToday: 'Today',
+    eventDaysLeft: 'days left',
+    eventIsbatNote: 'estimate, pending official Kemenag (Indonesia) announcement',
+    eventHisabNote: 'global hisab calculation, Umm al-Qura',
+    remindersTitle: '✨ Daily Deeds',
+    reminderDzikirText: 'Morning & Evening Dhikr',
+    reminderQuranText: "Qur'an Reading",
+    reminderCheckTitle: 'Mark done for today',
+    reminderTimeTitle: 'Set reminder time',
+    reminderTimeSave: 'Save'
   },
   ar: {
     fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء',
@@ -188,7 +208,17 @@ const translations = {
     manualUseGps: 'استخدام GPS',
     manualLatPlaceholder: 'خط العرض (مثال: -8.0983)',
     manualLngPlaceholder: 'خط الطول (مثال: 112.4472)',
-    manualInvalid: 'خط العرض من -90 إلى 90، خط الطول من -180 إلى 180'
+    manualInvalid: 'خط العرض من -90 إلى 90، خط الطول من -180 إلى 180',
+    eventToday: 'اليوم',
+    eventDaysLeft: 'يوم متبقٍ',
+    eventIsbatNote: 'تقديري، بانتظار إعلان وزارة الأديان الإندونيسية الرسمي',
+    eventHisabNote: 'حساب فلكي عالمي (أم القرى)',
+    remindersTitle: '✨ الأعمال اليومية',
+    reminderDzikirText: 'أذكار الصباح والمساء',
+    reminderQuranText: 'قراءة القرآن',
+    reminderCheckTitle: 'تحديد كمنجز اليوم',
+    reminderTimeTitle: 'تعيين وقت التذكير',
+    reminderTimeSave: 'حفظ'
   }
 };
 
@@ -579,6 +609,12 @@ function updateLanguageUI() {
   $('#manual-lat').placeholder = t.manualLatPlaceholder;
   $('#manual-lng').placeholder = t.manualLngPlaceholder;
 
+  $('#event-ref').style.display = currentLang === 'en' ? 'inline-block' : 'none';
+  computeUpcomingEvents();
+
+  renderReminders();
+  scheduleDailyReminder();
+
   // Refresh weather description if data exists
   const weatherDesc = $('#weather-desc');
   const weatherTemp = $('#weather-temp');
@@ -699,6 +735,8 @@ function updateQibla(lat, lng) {
 // ==================== RAMADAN MODE ====================
 
 let currentHijriMonth = null;
+let currentHijriDay = null;
+let currentHijriYear = null;
 
 function updateRamadanBanner() {
   const banner = $('#ramadan-banner');
@@ -714,6 +752,182 @@ function updateRamadanBanner() {
   $('#iftar-label').textContent = t.iftar;
   $('#imsak-time').textContent = formatTime(hourToTime(prayerTimes.imsak));
   $('#iftar-time').textContent = formatTime(hourToTime(prayerTimes.maghrib));
+}
+
+// ==================== UPCOMING ISLAMIC EVENTS ====================
+
+/**
+ * Fixed Hijri month/day for each event. All dates are computed via the
+ * Aladhan hToG endpoint (Umm al-Qura based hisab) — the same source
+ * already used for prayer times/Hijri date elsewhere in this app.
+ *
+ * IMPORTANT CAVEAT: Ramadhan/Idul Fitri/Idul Adha start dates in
+ * Indonesia are only finalized by Kemenag's Sidang Isbat (moon-sighting
+ * confirmation) 1 day before the event, and can shift by a day from any
+ * calculated estimate. There is no public API for Kemenag's official
+ * dates, so the "Indonesia (Kemenag)" reference below only changes the
+ * disclaimer wording shown to the user — the underlying computed date is
+ * identical either way.
+ */
+const ISLAMIC_EVENTS = [
+  { key: 'muharram', month: 1, day: 1, id: 'Tahun Baru Islam', en: 'Islamic New Year', ar: 'رأس السنة الهجرية' },
+  { key: 'maulid', month: 3, day: 12, id: 'Maulid Nabi Muhammad', en: "Mawlid (Prophet's Birthday)", ar: 'المولد النبوي' },
+  { key: 'isramiraj', month: 7, day: 27, id: "Isra Mi'raj", en: "Isra and Mi'raj", ar: 'الإسراء والمعراج' },
+  { key: 'ramadhan', month: 9, day: 1, id: 'Awal Ramadhan', en: 'Start of Ramadan', ar: 'بداية رمضان' },
+  { key: 'nuzululquran', month: 9, day: 17, id: "Nuzulul Qur'an", en: 'Nuzul Al-Quran', ar: 'نزول القرآن' },
+  { key: 'idulfitri', month: 10, day: 1, id: 'Idul Fitri', en: 'Eid al-Fitr', ar: 'عيد الفطر' },
+  { key: 'arafah', month: 12, day: 9, id: 'Puasa Arafah', en: 'Day of Arafah', ar: 'يوم عرفة' },
+  { key: 'iduladha', month: 12, day: 10, id: 'Idul Adha', en: 'Eid al-Adha', ar: 'عيد الأضحى' }
+];
+
+const BIG_THREE_EVENT_KEYS = ['ramadhan', 'idulfitri', 'iduladha'];
+
+function getEventRef() {
+  if (currentLang !== 'en') return 'id';
+  return localStorage.getItem('muslimboard-event-ref') || 'id';
+}
+
+function parseDdMmYyyy(str) {
+  const [d, m, y] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+async function computeUpcomingEvents() {
+  if (currentHijriYear == null || currentHijriMonth == null || currentHijriDay == null) return;
+
+  const cacheKey = 'muslimboard-islamic-events';
+  const todayKey = new Date().toDateString();
+  try {
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+    if (cached && cached.date === todayKey && Array.isArray(cached.events)) {
+      renderUpcomingEvent(cached.events);
+      return;
+    }
+  } catch (e) {
+    // ignore malformed cache
+  }
+
+  const results = await Promise.all(ISLAMIC_EVENTS.map(async (ev) => {
+    const isLaterOrToday = ev.month > currentHijriMonth || (ev.month === currentHijriMonth && ev.day >= currentHijriDay);
+    const targetYear = isLaterOrToday ? currentHijriYear : currentHijriYear + 1;
+
+    try {
+      const dateStr = `${pad(ev.day)}-${pad(ev.month)}-${targetYear}`;
+      const res = await fetch(`https://api.aladhan.com/v1/hToG/${dateStr}`);
+      const data = await res.json();
+      const gregorian = data && data.data && data.data.gregorian && data.data.gregorian.date;
+      if (!gregorian) return null;
+      return { key: ev.key, gregorian };
+    } catch (e) {
+      return null;
+    }
+  }));
+
+  const events = results.filter(Boolean);
+  localStorage.setItem(cacheKey, JSON.stringify({ date: todayKey, events }));
+  renderUpcomingEvent(events);
+}
+
+function renderUpcomingEvent(events) {
+  const eventEl = $('#upcoming-event');
+  const dividerEl = $('#event-divider');
+  if (!eventEl || !dividerEl || !events || events.length === 0) return;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const withDays = events
+    .map(e => {
+      const eventDate = parseDdMmYyyy(e.gregorian);
+      const daysUntil = Math.round((eventDate - today) / 86400000);
+      return { ...e, eventDate, daysUntil };
+    })
+    .filter(e => e.daysUntil >= 0)
+    .sort((a, b) => a.daysUntil - b.daysUntil);
+
+  if (withDays.length === 0) return;
+
+  const next = withDays[0];
+  const eventDef = ISLAMIC_EVENTS.find(ev => ev.key === next.key);
+  if (!eventDef) return;
+
+  const t = translations[currentLang];
+  const label = eventDef[currentLang] || eventDef.id;
+  const locale = currentLang === 'ar' ? 'ar-SA' : currentLang === 'en' ? 'en-US' : 'id-ID';
+  const dateLabel = next.eventDate.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+  const daysText = next.daysUntil === 0 ? t.eventToday : `${next.daysUntil} ${t.eventDaysLeft}`;
+
+  eventEl.textContent = `🎉 ${label}: ${daysText}`;
+
+  let tooltip = `${label} — ${dateLabel}`;
+  if (BIG_THREE_EVENT_KEYS.includes(next.key)) {
+    tooltip += getEventRef() === 'id' ? ` (${t.eventIsbatNote})` : ` (${t.eventHisabNote})`;
+  }
+  eventEl.title = tooltip;
+
+  eventEl.style.display = 'inline';
+  dividerEl.style.display = 'inline';
+}
+
+// ==================== DAILY REMINDERS (DZIKIR & TILAWAH) ====================
+
+let reminderState = { date: '', dzikir: false, quran: false };
+
+function loadReminderState() {
+  const todayKey = new Date().toDateString();
+  try {
+    const saved = JSON.parse(localStorage.getItem('muslimboard-reminders') || 'null');
+    if (saved && saved.date === todayKey) {
+      reminderState = saved;
+      return;
+    }
+  } catch (e) {
+    // ignore malformed state
+  }
+  // New day (or first run) — reset both to not-done.
+  reminderState = { date: todayKey, dzikir: false, quran: false };
+  localStorage.setItem('muslimboard-reminders', JSON.stringify(reminderState));
+}
+
+function toggleReminder(key) {
+  reminderState[key] = !reminderState[key];
+  localStorage.setItem('muslimboard-reminders', JSON.stringify(reminderState));
+  renderReminders();
+}
+
+function renderReminders() {
+  const t = translations[currentLang];
+  $('#reminders-title').textContent = t.remindersTitle;
+  $('#reminder-time-toggle').title = t.reminderTimeTitle;
+  $('#reminder-time-save').textContent = t.reminderTimeSave;
+  $('#reminder-dzikir-text').textContent = t.reminderDzikirText;
+  $('#reminder-quran-text').textContent = t.reminderQuranText;
+  $('#reminder-dzikir-check').title = t.reminderCheckTitle;
+  $('#reminder-quran-check').title = t.reminderCheckTitle;
+
+  $('#reminder-dzikir').classList.toggle('done', !!reminderState.dzikir);
+  $('#reminder-quran').classList.toggle('done', !!reminderState.quran);
+  $('#reminder-dzikir-check').textContent = reminderState.dzikir ? '✓' : '';
+  $('#reminder-quran-check').textContent = reminderState.quran ? '✓' : '';
+}
+
+/**
+ * One gentle daily notification covering both dzikir & Qur'an reading —
+ * deliberately a single nudge (not one alert per item) so it doesn't
+ * feel naggy, unlike the 5x/day prayer alerts.
+ */
+function scheduleDailyReminder() {
+  if (!browserAPI.alarms) return;
+  const time = localStorage.getItem('muslimboard-reminder-time') || '20:00';
+  const [hour, minute] = time.split(':').map(Number);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return;
+
+  browserAPI.runtime.sendMessage({
+    type: 'SCHEDULE_DAILY_REMINDER',
+    hour,
+    minute,
+    lang: currentLang
+  }).catch(() => {});
 }
 
 // ==================== LOCATION & INIT ====================
@@ -899,8 +1113,11 @@ async function loadHijriDate() {
       const hijri = data.data.hijri;
       const monthName = currentLang === 'ar' ? hijri.month.ar : hijri.month.en;
       hijriEl.textContent = `${hijri.day} ${monthName} ${hijri.year} AH`;
+      currentHijriDay = parseInt(hijri.day, 10);
       currentHijriMonth = parseInt(hijri.month.number, 10);
+      currentHijriYear = parseInt(hijri.year, 10);
       updateRamadanBanner();
+      computeUpcomingEvents();
     }
   } catch (e) {
     console.log('Hijri date load failed:', e);
@@ -969,6 +1186,27 @@ function setupEventListeners() {
     if (e.target.classList.contains('todo-delete')) {
       deleteTodo(parseInt(e.target.dataset.index));
     }
+  });
+
+  // Daily reminders (dzikir & Qur'an)
+  $('#reminder-dzikir-check').addEventListener('click', () => toggleReminder('dzikir'));
+  $('#reminder-quran-check').addEventListener('click', () => toggleReminder('quran'));
+
+  $('#reminder-time-toggle').addEventListener('click', () => {
+    const form = $('#reminder-time-form');
+    const showing = form.style.display === 'flex';
+    form.style.display = showing ? 'none' : 'flex';
+    if (!showing) {
+      $('#reminder-time-input').value = localStorage.getItem('muslimboard-reminder-time') || '20:00';
+    }
+  });
+
+  $('#reminder-time-save').addEventListener('click', () => {
+    const value = $('#reminder-time-input').value;
+    if (!value) return;
+    localStorage.setItem('muslimboard-reminder-time', value);
+    $('#reminder-time-form').style.display = 'none';
+    scheduleDailyReminder();
   });
 
   $('#todo-export').addEventListener('click', exportTodos);
@@ -1044,7 +1282,14 @@ function setupEventListeners() {
     updateLanguageUI();
     updateDate();
   });
-  
+
+  // Islamic event date reference (only meaningful/shown for English UI)
+  $('#event-ref').value = localStorage.getItem('muslimboard-event-ref') || 'id';
+  $('#event-ref').addEventListener('change', (e) => {
+    localStorage.setItem('muslimboard-event-ref', e.target.value);
+    computeUpcomingEvents();
+  });
+
   // Internet status
   window.addEventListener('online', updateInternetStatus);
   window.addEventListener('offline', updateInternetStatus);
@@ -1159,7 +1404,11 @@ function loadWallpaper() {
 
 async function init() {
   setupEventListeners();
+  $('#event-ref').style.display = currentLang === 'en' ? 'inline-block' : 'none';
   loadTodos();
+  loadReminderState();
+  renderReminders();
+  scheduleDailyReminder();
   loadWallpaper();
   updateDate();
   updateClock();

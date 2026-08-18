@@ -618,9 +618,145 @@ body::after {
   transform: scale(1.2);
 }
 
+/* Daily Reminders (Dzikir & Tilawah) */
+.daily-reminders {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reminders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reminders-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--secondary-color);
+  letter-spacing: 0.2px;
+}
+
+.reminder-time-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  transition: var(--transition);
+}
+
+.reminder-time-btn:hover {
+  color: var(--secondary-color);
+  transform: rotate(20deg);
+}
+
+.reminder-time-form {
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.reminder-time-form input[type="time"] {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+.reminder-time-form button {
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.reminder-time-form button:hover {
+  background: #145030;
+}
+
+.reminder-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  transition: var(--transition);
+}
+
+.reminder-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.reminder-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.reminder-text {
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.reminder-check {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reminder-check:hover {
+  border-color: var(--secondary-color);
+}
+
+.reminder-item.done {
+  border-left-color: var(--accent-green);
+  background: rgba(46, 204, 113, 0.08);
+}
+
+.reminder-item.done .reminder-text {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-color: rgba(176, 176, 176, 0.5);
+}
+
+.reminder-item.done .reminder-check {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: white;
+}
+
 /* Weather Info (in Todo List) */
 .weather-info {
-  margin-top: auto;
+  margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
@@ -689,6 +825,11 @@ body::after {
 
 .location-hijri .divider {
   color: rgba(176, 176, 176, 0.4);
+}
+
+.upcoming-event {
+  color: var(--secondary-color);
+  cursor: default;
 }
 
 .status-dot {
