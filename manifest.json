@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Muslim Dashboard",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Islamic dashboard on every new tab: prayer times, qibla direction, upcoming Islamic events, daily reminders, todo & weather.",
   "author": "Ahmad Abulkhair",
   "icons": {

@@ -142,7 +142,14 @@ const translations = {
     reminderQuranText: 'Tilawah Al-Qur\'an',
     reminderCheckTitle: 'Tandai selesai hari ini',
     reminderTimeTitle: 'Atur jam pengingat',
-    reminderTimeSave: 'Simpan'
+    reminderTimeSave: 'Simpan',
+    locationRetryTitle: 'Coba lagi',
+    prevQuoteTitle: 'Quote sebelumnya',
+    nextQuoteTitle: 'Quote selanjutnya',
+    exportTodoTitle: 'Export todo (JSON)',
+    importTodoTitle: 'Import todo (JSON)',
+    leadtimeTitle: 'Notifikasi sebelum waktu sholat',
+    eventRefTitle: 'Referensi tanggal hari besar Islam'
   },
   en: {
     fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
@@ -180,7 +187,14 @@ const translations = {
     reminderQuranText: "Qur'an Reading",
     reminderCheckTitle: 'Mark done for today',
     reminderTimeTitle: 'Set reminder time',
-    reminderTimeSave: 'Save'
+    reminderTimeSave: 'Save',
+    locationRetryTitle: 'Try again',
+    prevQuoteTitle: 'Previous quote',
+    nextQuoteTitle: 'Next quote',
+    exportTodoTitle: "Export to-dos (JSON)",
+    importTodoTitle: "Import to-dos (JSON)",
+    leadtimeTitle: 'Notify before prayer time',
+    eventRefTitle: 'Islamic date reference'
   },
   ar: {
     fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء',
@@ -218,7 +232,14 @@ const translations = {
     reminderQuranText: 'قراءة القرآن',
     reminderCheckTitle: 'تحديد كمنجز اليوم',
     reminderTimeTitle: 'تعيين وقت التذكير',
-    reminderTimeSave: 'حفظ'
+    reminderTimeSave: 'حفظ',
+    locationRetryTitle: 'إعادة المحاولة',
+    prevQuoteTitle: 'الاقتباس السابق',
+    nextQuoteTitle: 'الاقتباس التالي',
+    exportTodoTitle: 'تصدير المهام (JSON)',
+    importTodoTitle: 'استيراد المهام (JSON)',
+    leadtimeTitle: 'تنبيه قبل وقت الصلاة',
+    eventRefTitle: 'مرجع تواريخ المناسبات الإسلامية'
   }
 };
 
@@ -610,10 +631,20 @@ function updateLanguageUI() {
   $('#manual-lng').placeholder = t.manualLngPlaceholder;
 
   $('#event-ref').style.display = currentLang === 'en' ? 'inline-block' : 'none';
+  $('#event-ref').title = t.eventRefTitle;
   computeUpcomingEvents();
 
   renderReminders();
   scheduleDailyReminder();
+
+  $('#next-prayer-label').textContent = t.nextPrayer;
+  $('#next-prayer-in-label').textContent = t.in;
+  $('#location-retry').title = t.locationRetryTitle;
+  $('#prev-quote').title = t.prevQuoteTitle;
+  $('#next-quote').title = t.nextQuoteTitle;
+  $('#todo-export').title = t.exportTodoTitle;
+  $('#todo-import-label').title = t.importTodoTitle;
+  $('.leadtime-icon').title = t.leadtimeTitle;
 
   // Refresh weather description if data exists
   const weatherDesc = $('#weather-desc');
@@ -1409,6 +1440,10 @@ async function init() {
   loadReminderState();
   renderReminders();
   scheduleDailyReminder();
+  // HTML ships hardcoded in Indonesian; if a returning user's saved
+  // language differs, apply translations now instead of waiting for
+  // them to touch the language dropdown again.
+  if (currentLang !== 'id') updateLanguageUI();
   loadWallpaper();
   updateDate();
   updateClock();
