@@ -52,6 +52,23 @@ Notifikasi waktu sholat dijadwalkan secara lokal melalui `alarms` API browser da
 
 Extension ini **tidak meminta** permission `geolocation` di manifest — akses lokasi memakai Geolocation API standar browser yang meminta izin langsung ke pengguna seperti situs web pada umumnya, dan bisa ditolak/dicabut kapan saja lewat pengaturan browser.
 
+## Sumber Konten & Atribusi
+
+Semua konten yang ditampilkan di dashboard berasal dari sumber berikut. Tidak ada konten yang di-hosting, disimpan permanen, atau diklaim sebagai milik kami — semua diambil real-time (kecuali quotes yang memang di-embed statis di kode) dan ditampilkan apa adanya.
+
+| Konten | Sumber | Keterangan |
+|---|---|---|
+| Kutipan Al-Quran & Hadits | Di-embed statis di `newtab.js` | Teks umum publik, tiap kutipan dicantumkan sumbernya langsung (nama Surah/ayat atau perawi Hadits) |
+| Jadwal sholat | `api.aladhan.com` (Al Adhan API) | Bisa pilih 7 metode perhitungan (Kemenag RI, MWL, ISNA, dll). Fallback: perhitungan astronomi lokal di `newtab.js` kalau API gagal diakses |
+| Tanggal Hijriah | `api.aladhan.com/gToH` | Konversi tanggal Masehi → Hijriah |
+| Prakiraan cuaca | `api.open-meteo.com` | Data cuaca real-time berbasis koordinat |
+| Nama kota/lokasi | `api.bigdatacloud.net` | Reverse geocoding dari koordinat ke nama lokasi |
+| Wallpaper latar | Bing Image of the Day (`bing.com`), fallback Picsum Photos (`picsum.photos`) | Gambar diambil real-time via endpoint publik, ditampilkan sementara di background tab pengguna sendiri — tidak diunduh permanen, disimpan ulang, atau didistribusikan ke pihak lain oleh extension |
+| Arah Kiblat | Dihitung lokal di `newtab.js` | Formula great-circle bearing ke koordinat Ka'bah (21.4225, 39.8262), bukan dari API eksternal |
+| Ikon extension | Dibuat sendiri (`icons/icon*.png`) | Bukan hasil dari layanan pihak ketiga |
+
+Extension ini **tidak memodifikasi, menyimpan permanen, atau mengklaim hak cipta** atas konten dari layanan pihak ketiga di atas. Semua request dilakukan langsung dari browser pengguna (client-side), bukan lewat server kami.
+
 ## Hak Pengguna
 
 - Hapus semua data lokal kapan saja lewat: uninstall extension, atau clear browser data untuk extension ini.

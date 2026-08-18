@@ -151,6 +151,21 @@
   </table>
   <p>Extension ini <strong>tidak meminta</strong> permission <code>geolocation</code> di manifest — akses lokasi memakai Geolocation API standar browser yang meminta izin langsung ke pengguna seperti situs web pada umumnya, dan bisa ditolak/dicabut kapan saja lewat pengaturan browser.</p>
 
+  <h2>Sumber Konten &amp; Atribusi</h2>
+  <p>Semua konten yang ditampilkan di dashboard berasal dari sumber berikut. Tidak ada konten yang di-hosting, disimpan permanen, atau diklaim sebagai milik kami — semua diambil real-time (kecuali quotes yang memang di-embed statis di kode) dan ditampilkan apa adanya.</p>
+  <table>
+    <tr><th>Konten</th><th>Sumber</th><th>Keterangan</th></tr>
+    <tr><td>Kutipan Al-Quran &amp; Hadits</td><td>Di-embed statis di <code>newtab.js</code></td><td>Teks umum publik, tiap kutipan dicantumkan sumbernya langsung (nama Surah/ayat atau perawi Hadits)</td></tr>
+    <tr><td>Jadwal sholat</td><td><code>api.aladhan.com</code> (Al Adhan API)</td><td>Bisa pilih 7 metode perhitungan (Kemenag RI, MWL, ISNA, dll). Fallback: perhitungan astronomi lokal di <code>newtab.js</code> kalau API gagal diakses</td></tr>
+    <tr><td>Tanggal Hijriah</td><td><code>api.aladhan.com/gToH</code></td><td>Konversi tanggal Masehi → Hijriah</td></tr>
+    <tr><td>Prakiraan cuaca</td><td><code>api.open-meteo.com</code></td><td>Data cuaca real-time berbasis koordinat</td></tr>
+    <tr><td>Nama kota/lokasi</td><td><code>api.bigdatacloud.net</code></td><td>Reverse geocoding dari koordinat ke nama lokasi</td></tr>
+    <tr><td>Wallpaper latar</td><td>Bing Image of the Day (<code>bing.com</code>), fallback Picsum Photos (<code>picsum.photos</code>)</td><td>Gambar diambil real-time via endpoint publik, ditampilkan sementara di background tab pengguna sendiri — tidak diunduh permanen, disimpan ulang, atau didistribusikan ke pihak lain oleh extension</td></tr>
+    <tr><td>Arah Kiblat</td><td>Dihitung lokal di <code>newtab.js</code></td><td>Formula great-circle bearing ke koordinat Ka'bah (21.4225, 39.8262), bukan dari API eksternal</td></tr>
+    <tr><td>Ikon extension</td><td>Dibuat sendiri (<code>icons/icon*.png</code>)</td><td>Bukan hasil dari layanan pihak ketiga</td></tr>
+  </table>
+  <p>Extension ini <strong>tidak memodifikasi, menyimpan permanen, atau mengklaim hak cipta</strong> atas konten dari layanan pihak ketiga di atas. Semua request dilakukan langsung dari browser pengguna (client-side), bukan lewat server kami.</p>
+
   <h2>Hak Pengguna</h2>
   <ul>
     <li>Hapus semua data lokal kapan saja lewat: uninstall extension, atau clear browser data untuk extension ini.</li>
