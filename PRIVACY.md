@@ -77,7 +77,7 @@ Extension ini **tidak memodifikasi, menyimpan permanen, atau mengklaim hak cipta
 
 ## Kontak
 
-Pertanyaan seputar kebijakan ini bisa dikirim ke dashboardmuslim@gmail.com.
+Pertanyaan seputar kebijakan ini bisa dikirim ke kontak@tukangweb.id.
 
 ---
 
