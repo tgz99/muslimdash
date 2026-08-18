@@ -77,7 +77,7 @@ Extension ini **tidak memodifikasi, menyimpan permanen, atau mengklaim hak cipta
 
 ## Kontak
 
-Pertanyaan seputar kebijakan ini bisa dikirim ke pembuat extension, Ahmad Abulkhair, melalui halaman repository proyek ini.
+Pertanyaan seputar kebijakan ini bisa dikirim ke dashboardmuslim@gmail.com.
 
 ---
 

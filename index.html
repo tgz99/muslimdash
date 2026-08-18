@@ -493,6 +493,29 @@
     margin-bottom: 18px;
   }
 
+  .install-steps {
+    text-align: left;
+    margin: 0;
+    padding-left: 20px;
+    font-size: 0.85rem;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .install-steps li::marker {
+    color: var(--gold-soft);
+    font-weight: 600;
+  }
+
+  .install-card code {
+    background: rgba(255,255,255,0.08);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.82em;
+  }
+
   .status.pending { color: var(--gold-soft); }
 
   /* ================= Footer ================= */
@@ -536,9 +559,9 @@
     </a>
     <nav class="nav-links">
       <a href="#features">Features</a>
-      <a href="#privacy-trust">Privacy</a>
       <a href="#install">Install</a>
       <a href="privacy.html">Privacy Policy</a>
+      <a href="mailto:dashboardmuslim@gmail.com">Contact</a>
     </nav>
   </div>
 </header>
@@ -552,11 +575,7 @@
       <h1>Turn every new tab into a moment of <span class="accent">mindfulness</span>.</h1>
       <p class="sub">Prayer times, Qibla direction, upcoming Islamic dates, and a gentle daily nudge for dhikr &amp; Qur'an — waiting for you before you even open a new site.</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="https://github.com/tgz99/muslimdash" target="_blank" rel="noopener">View on GitHub</a>
-        <a class="btn btn-ghost" href="#install">How to install</a>
-      </div>
-      <div class="cta-row" style="margin-top: 6px;">
-        <span class="pill-status"><span class="dot-pulse"></span> Actively developed &amp; open source</span>
+        <a class="btn btn-primary" href="#install">How to install</a>
       </div>
     </div>
 
@@ -643,20 +662,24 @@
   <section id="install" class="install">
     <div class="section-head">
       <div class="section-eyebrow">Get it</div>
-      <h2>Free, open source, and yours to inspect</h2>
-      <p>The full source is on GitHub — read it, fork it, or just install it.</p>
+      <h2>Free, and it stays that way</h2>
+      <p>No account, no payment — just add it and go.</p>
     </div>
 
     <div class="install-cards">
       <div class="install-card">
         <div class="browser-name">🦊 Firefox</div>
-        <div class="status">Load as a temporary add-on today</div>
-        <a class="btn btn-primary" href="https://github.com/tgz99/muslimdash#cara-install" target="_blank" rel="noopener">Install instructions</a>
+        <div class="status">Available now</div>
+        <ol class="install-steps">
+          <li>Open <code>about:debugging</code></li>
+          <li>Click <strong>This Firefox</strong> → <strong>Load Temporary Add-on</strong></li>
+          <li>Select the extension's <code>manifest.json</code></li>
+        </ol>
       </div>
       <div class="install-card">
         <div class="browser-name">🌐 Chrome</div>
         <div class="status pending">Submitted — pending Chrome Web Store review</div>
-        <a class="btn btn-ghost" href="https://github.com/tgz99/muslimdash" target="_blank" rel="noopener">Follow progress on GitHub</a>
+        <a class="btn btn-ghost" href="mailto:dashboardmuslim@gmail.com?subject=Muslim%20Dashboard%20for%20Chrome">Get notified when it's live</a>
       </div>
     </div>
   </section>
@@ -666,10 +689,9 @@
   <div class="wrap footer-inner">
     <div class="footer-links">
       <a href="privacy.html">Privacy Policy</a>
-      <a href="https://github.com/tgz99/muslimdash" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://github.com/tgz99/muslimdash/issues" target="_blank" rel="noopener">Report an issue</a>
+      <a href="mailto:dashboardmuslim@gmail.com">dashboardmuslim@gmail.com</a>
     </div>
-    <div class="footer-note">Made by Ahmad Abulkhair · Muslim Dashboard is free and open source</div>
+    <div class="footer-note">Made by Ahmad Abulkhair</div>
   </div>
 </footer>
 
