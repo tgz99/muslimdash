@@ -17,8 +17,20 @@
       <div class="card-header">
         <h2>🕌 Jadwal Sholat</h2>
         <div class="location-info">
-          <span id="location-name">Mendapatkan lokasi...</span>
+          <span class="location-name-row">
+            <button id="location-name" class="location-name-link" title="Atur lokasi manual">Mendapatkan lokasi...</button>
+            <button id="location-retry" class="location-retry" title="Coba lagi" style="display:none">↻</button>
+          </span>
           <span id="current-date"></span>
+        </div>
+        <div class="location-manual-form" id="location-manual-form" style="display:none">
+          <input type="text" inputmode="decimal" id="manual-lat" placeholder="Lintang (mis. -8.0983)">
+          <input type="text" inputmode="decimal" id="manual-lng" placeholder="Bujur (mis. 112.4472)">
+          <span class="location-manual-error" id="location-manual-error"></span>
+          <div class="location-manual-actions">
+            <button id="manual-save">Simpan</button>
+            <button id="manual-use-gps">Pakai GPS</button>
+          </div>
         </div>
       </div>
       <div class="prayer-list">
@@ -66,6 +78,10 @@
       <div class="prayer-source" id="prayer-source">
         Sumber: Perhitungan Algoritma Standar (Metode Umum)
       </div>
+      <div class="qibla-info" id="qibla-info" style="display:none">
+        <span class="qibla-arrow" id="qibla-arrow">➤</span>
+        <span id="qibla-text">Kiblat: --°</span>
+      </div>
     </div>
 
     <!-- Center: Clock, Greeting & Quotes -->
@@ -73,6 +89,12 @@
       <div class="clock" id="clock">00:00</div>
       <div class="greeting" id="greeting">Assalamualaikum</div>
       
+      <div class="ramadan-banner" id="ramadan-banner" style="display:none">
+        <span class="ramadan-title">🌙 <span id="ramadan-label">Ramadan</span></span>
+        <span><span id="imsak-label">Imsak</span> <strong id="imsak-time">--:--</strong></span>
+        <span><span id="iftar-label">Buka Puasa</span> <strong id="iftar-time">--:--</strong></span>
+      </div>
+
       <div class="quotes-section">
         <div class="quote-container">
           <p class="quote-text" id="quote-text">Memuat quote...</p>
@@ -87,8 +109,13 @@
 
     <!-- Right Side: Todo List -->
     <div class="todo-list card">
-      <div class="card-header">
+      <div class="card-header todo-header">
         <h2>📝 Todo List</h2>
+        <div class="todo-io">
+          <button id="todo-export" title="Export todo (JSON)">⬇</button>
+          <label for="todo-import-file" id="todo-import-label" title="Import todo (JSON)">⬆</label>
+          <input type="file" id="todo-import-file" accept="application/json" style="display:none">
+        </div>
       </div>
       <div class="todo-input-container">
         <input type="text" id="todo-input" placeholder="Tambahkan tugas..." maxlength="100">
@@ -120,6 +147,14 @@
         </div>
       </div>
       <div class="settings">
+        <span class="leadtime-icon" title="Notifikasi sebelum waktu sholat">🔔</span>
+        <select id="notif-leadtime">
+          <option value="1">1 min</option>
+          <option value="5">5 min</option>
+          <option value="10" selected>10 min</option>
+          <option value="15">15 min</option>
+          <option value="30">30 min</option>
+        </select>
         <select id="language-select">
           <option value="id">Bahasa Indonesia</option>
           <option value="en">English</option>

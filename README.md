@@ -14,6 +14,10 @@ Extension browser untuk Firefox yang menampilkan dashboard Islami saat membuka t
 - **Sumber Waktu Sholat** - Menampilkan metode perhitungan yang digunakan
 - **Lokasi & Tanggal Hijriah** - Nama kota dan tanggal Hijriah di bottom bar
 - **Prakiraan Cuaca** - Cuaca real-time dari Open-Meteo di bawah todo list
+- **Arah Kiblat** - Bearing ke Ka'bah dihitung dari lokasi pengguna
+- **Mode Ramadan** - Banner Imsak & waktu Buka Puasa otomatis muncul saat bulan Ramadan
+- **Export/Import Todo** - Backup dan restore todo list sebagai file JSON
+- **Notifikasi via Alarm** - Pengingat waktu sholat tetap muncul walau tab dashboard tertutup, dengan lead-time yang bisa diatur (1/5/10/15/30 menit)
 
 ## Cara Install
 
@@ -55,6 +59,10 @@ muslimdash/
 - **Vanilla JavaScript** (ES6+)
 - **CSS Grid & Flexbox**
 - **Local Storage** untuk data persisten
+
+## Privacy Policy
+
+Lihat [PRIVACY.md](PRIVACY.md) untuk detail data apa yang diproses dan ke mana data itu mengalir.
 
 ## Catatan
 

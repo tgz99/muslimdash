@@ -3,6 +3,8 @@
  * Features: Prayer times, Quotes, Todo, Clock, Internet status
  */
 
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 // ==================== DATA & CONFIG ====================
 
 const quotes = {
@@ -120,7 +122,17 @@ const translations = {
     prayerTime: 'Waktu Sholat',
     todoList: 'Todo List',
     prayerSource: 'Sumber',
-    selectMethod: 'Metode'
+    selectMethod: 'Metode',
+    qibla: 'Kiblat',
+    ramadan: 'Ramadan',
+    imsak: 'Imsak',
+    iftar: 'Buka Puasa',
+    locationEditTitle: 'Atur lokasi manual',
+    manualSave: 'Simpan',
+    manualUseGps: 'Pakai GPS',
+    manualLatPlaceholder: 'Lintang (mis. -8.0983)',
+    manualLngPlaceholder: 'Bujur (mis. 112.4472)',
+    manualInvalid: 'Lintang harus -90..90, Bujur harus -180..180'
   },
   en: {
     fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
@@ -138,7 +150,17 @@ const translations = {
     prayerTime: 'Prayer Times',
     todoList: 'Todo List',
     prayerSource: 'Source',
-    selectMethod: 'Method'
+    selectMethod: 'Method',
+    qibla: 'Qibla',
+    ramadan: 'Ramadan',
+    imsak: 'Imsak',
+    iftar: 'Iftar',
+    locationEditTitle: 'Set location manually',
+    manualSave: 'Save',
+    manualUseGps: 'Use GPS',
+    manualLatPlaceholder: 'Latitude (e.g. -8.0983)',
+    manualLngPlaceholder: 'Longitude (e.g. 112.4472)',
+    manualInvalid: 'Latitude must be -90..90, longitude -180..180'
   },
   ar: {
     fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء',
@@ -156,7 +178,17 @@ const translations = {
     prayerTime: 'مواقيت الصلاة',
     todoList: 'قائمة المهام',
     prayerSource: 'المصدر',
-    selectMethod: 'الطريقة'
+    selectMethod: 'الطريقة',
+    qibla: 'القبلة',
+    ramadan: 'رمضان',
+    imsak: 'الإمساك',
+    iftar: 'الإفطار',
+    locationEditTitle: 'تعيين الموقع يدويًا',
+    manualSave: 'حفظ',
+    manualUseGps: 'استخدام GPS',
+    manualLatPlaceholder: 'خط العرض (مثال: -8.0983)',
+    manualLngPlaceholder: 'خط الطول (مثال: 112.4472)',
+    manualInvalid: 'خط العرض من -90 إلى 90، خط الطول من -180 إلى 180'
   }
 };
 
@@ -167,6 +199,7 @@ let currentMethod = localStorage.getItem('muslimboard-method') || '20'; // Defau
 let currentQuoteIndex = Math.floor(Math.random() * quotes[currentLang].length);
 let prayerTimes = null;
 let userLocation = null;
+let prayerElsCache = null;
 
 // ==================== UTILITY FUNCTIONS ====================
 
@@ -209,7 +242,9 @@ function calculatePrayerTimes(latitude, longitude, date = new Date()) {
   times.asr = calculateAsr(latitude, sunPos.declination, sunPos.eqTime, date, longitude);
   times.maghrib = calculatePrayerTime(latitude, sunPos.declination, -0.833, sunPos.eqTime, date, longitude, false, true);
   times.isha = calculatePrayerTime(latitude, sunPos.declination, -17, sunPos.eqTime, date, longitude, false, true);
-  
+  // Imsak: conventional 10-minute margin before Fajr (no dedicated angle).
+  times.imsak = fixHour(times.fajr - 10 / 60);
+
   return times;
 }
 
@@ -254,11 +289,14 @@ function calculatePrayerTime(lat, decl, angle, eqTime, date, lng, isDhuhr = fals
     time = 12 + (isMorningAngle(angle) ? -D : D) * 4 / 60 + (4 * -lng - eqTime) / 60;
   }
   
-  // Adjust for timezone (simplified - using system timezone)
+  // `time` above is a solar (longitude-based) local time, not the device's
+  // civil timezone. Convert it to UTC using the true solar offset (lng/15),
+  // then re-express it in the device's actual timezone so displayed times
+  // match the clock, not the sun.
   const timezone = -date.getTimezoneOffset() / 60;
   const utcTime = time - timezone;
   const localTime = utcTime + (timezone + lng / 15);
-  
+
   return fixHour(localTime);
 }
 
@@ -306,6 +344,7 @@ async function fetchPrayerTimesFromAPI(lat, lng, method) {
         asr: timeToDecimal(t.Asr),
         maghrib: timeToDecimal(t.Maghrib),
         isha: timeToDecimal(t.Isha),
+        imsak: timeToDecimal(t.Imsak),
         source: sourceName
       };
     }
@@ -323,17 +362,48 @@ async function loadPrayerTimes(lat, lng) {
       prayerTimes = apiTimes;
       updatePrayerSource(apiTimes.source);
       updatePrayerTimes();
+      updateRamadanBanner();
+      scheduleNotifications();
       return;
     }
   }
-  
+
   // Fallback to local calculation
   prayerTimes = calculatePrayerTimes(lat, lng);
   const methodInfo = prayerMethods[currentMethod] || prayerMethods.local;
-  const sourceName = currentLang === 'ar' ? methodInfo.nameAr : 
+  const sourceName = currentLang === 'ar' ? methodInfo.nameAr :
                      currentLang === 'en' ? methodInfo.nameEn : methodInfo.name;
   updatePrayerSource(sourceName);
   updatePrayerTimes();
+  updateRamadanBanner();
+  scheduleNotifications();
+}
+
+/**
+ * Push the day's prayer times to the background script so it can fire
+ * OS notifications via alarms, independent of this tab staying open.
+ */
+function scheduleNotifications() {
+  if (!prayerTimes || !browserAPI.alarms) return;
+
+  const leadMinutes = parseInt(localStorage.getItem('muslimboard-leadtime') || '10', 10);
+  const now = new Date();
+  const schedule = {};
+
+  ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
+    const prayerTime = hourToTime(prayerTimes[prayer]);
+    let notifyAt = new Date(prayerTime.getTime() - leadMinutes * 60000);
+    if (notifyAt <= now) {
+      notifyAt = new Date(notifyAt.getTime() + 24 * 3600000);
+    }
+    schedule[prayer] = notifyAt.getTime();
+  });
+
+  browserAPI.runtime.sendMessage({
+    type: 'SCHEDULE_PRAYER_ALARMS',
+    schedule,
+    lang: currentLang
+  }).catch(() => {});
 }
 
 function updatePrayerSource(sourceName) {
@@ -363,33 +433,44 @@ function updateClock() {
   $('#greeting').textContent = `${greeting}, Muslim`;
 }
 
+function getPrayerEls() {
+  if (!prayerElsCache) {
+    prayerElsCache = {};
+    ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
+      prayerElsCache[prayer] = {
+        time: $(`#${prayer}-time`),
+        item: $(`.prayer-item[data-prayer="${prayer}"]`)
+      };
+    });
+  }
+  return prayerElsCache;
+}
+
 function updatePrayerTimes() {
   if (!prayerTimes || !userLocation) return;
-  
+
   const prayers = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  
+  const els = getPrayerEls();
+
   let nextPrayer = null;
   let nextPrayerTime = null;
   let minDiff = Infinity;
-  
+
   prayers.forEach(prayer => {
     const time = hourToTime(prayerTimes[prayer]);
-    const timeStr = formatTime(time);
-    const el = $(`#${prayer}-time`);
-    if (el) el.textContent = timeStr;
-    
-    // Update item styling
-    const item = $(`.prayer-item[data-prayer="${prayer}"]`);
+    const { time: timeEl, item } = els[prayer];
+    if (timeEl) timeEl.textContent = formatTime(time);
+
     if (item) {
       item.classList.remove('active', 'passed');
       const prayerMinutes = time.getHours() * 60 + time.getMinutes();
-      
+
       if (prayerMinutes <= currentMinutes) {
         item.classList.add('passed');
       }
-      
+
       const diff = prayerMinutes - currentMinutes;
       if (diff > 0 && diff < minDiff) {
         minDiff = diff;
@@ -398,30 +479,23 @@ function updatePrayerTimes() {
       }
     }
   });
-  
+
   // Find next prayer (wrap around to next day if needed)
   if (!nextPrayer) {
     nextPrayer = 'fajr';
     nextPrayerTime = hourToTime(prayerTimes.fajr);
     nextPrayerTime.setDate(nextPrayerTime.getDate() + 1);
   }
-  
+
   // Highlight active prayer
-  const activeItem = $(`.prayer-item[data-prayer="${nextPrayer}"]`);
+  const activeItem = els[nextPrayer] && els[nextPrayer].item;
   if (activeItem) activeItem.classList.add('active');
-  
+
   // Update countdown
   const diff = nextPrayerTime - now;
   const t = translations[currentLang];
   $('#next-prayer-name').textContent = t[nextPrayer] || nextPrayer;
   $('#next-prayer-countdown').textContent = formatCountdown(diff);
-  
-  // Send notification if prayer time is near (1 minute before)
-  if (diff <= 60000 && diff > 0 && !window.prayerNotified) {
-    window.prayerNotified = true;
-    showNotification(t[nextPrayer] || nextPrayer);
-    setTimeout(() => { window.prayerNotified = false; }, 120000);
-  }
 }
 
 function updateQuote() {
@@ -496,22 +570,21 @@ function updateLanguageUI() {
   updateQuote();
   updateInternetStatus();
   loadHijriDate();
-  
+  updateRamadanBanner();
+  if (userLocation) updateQibla(userLocation.lat, userLocation.lng);
+
+  $('#location-name').title = t.locationEditTitle;
+  $('#manual-save').textContent = t.manualSave;
+  $('#manual-use-gps').textContent = t.manualUseGps;
+  $('#manual-lat').placeholder = t.manualLatPlaceholder;
+  $('#manual-lng').placeholder = t.manualLngPlaceholder;
+
   // Refresh weather description if data exists
   const weatherDesc = $('#weather-desc');
   const weatherTemp = $('#weather-temp');
   if (weatherTemp && weatherTemp.textContent !== '--°C' && weatherTemp.dataset.code) {
     const wmo = weatherCodes[parseInt(weatherTemp.dataset.code)] || weatherCodes[0];
     weatherDesc.textContent = wmo[currentLang] || wmo.id;
-  }
-}
-
-function showNotification(prayerName) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('Waktu Sholat', {
-      body: `Saatnya sholat ${prayerName}`,
-      icon: 'icons/icon128.png'
-    });
   }
 }
 
@@ -567,13 +640,145 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function exportTodos() {
+  const todos = localStorage.getItem('muslimboard-todos') || '[]';
+  const blob = new Blob([todos], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `muslimdash-todos-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importTodosFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (Array.isArray(imported)) {
+        localStorage.setItem('muslimboard-todos', JSON.stringify(imported));
+        loadTodos();
+      }
+    } catch (err) {
+      console.log('Todo import failed:', err);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ==================== QIBLA DIRECTION ====================
+
+const KAABA_LAT = 21.4225;
+const KAABA_LNG = 39.8262;
+
+function calculateQiblaBearing(lat, lng) {
+  const phi1 = degToRad(lat);
+  const phi2 = degToRad(KAABA_LAT);
+  const deltaLambda = degToRad(KAABA_LNG - lng);
+  const y = Math.sin(deltaLambda) * Math.cos(phi2);
+  const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+  return (radToDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function updateQibla(lat, lng) {
+  const bearing = calculateQiblaBearing(lat, lng);
+  const t = translations[currentLang];
+  const info = $('#qibla-info');
+  const arrow = $('#qibla-arrow');
+  const text = $('#qibla-text');
+  if (!info || !arrow || !text) return;
+
+  info.style.display = 'flex';
+  arrow.style.transform = `rotate(${bearing}deg)`;
+  text.textContent = `${t.qibla}: ${Math.round(bearing)}°`;
+}
+
+// ==================== RAMADAN MODE ====================
+
+let currentHijriMonth = null;
+
+function updateRamadanBanner() {
+  const banner = $('#ramadan-banner');
+  if (!banner) return;
+
+  const isRamadan = currentHijriMonth === 9 && prayerTimes && prayerTimes.imsak != null;
+  banner.style.display = isRamadan ? 'flex' : 'none';
+  if (!isRamadan) return;
+
+  const t = translations[currentLang];
+  $('#ramadan-label').textContent = t.ramadan;
+  $('#imsak-label').textContent = t.imsak;
+  $('#iftar-label').textContent = t.iftar;
+  $('#imsak-time').textContent = formatTime(hourToTime(prayerTimes.imsak));
+  $('#iftar-time').textContent = formatTime(hourToTime(prayerTimes.maghrib));
+}
+
 // ==================== LOCATION & INIT ====================
+
+function getManualLocation() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('muslimboard-manual-location') || 'null');
+    if (raw && typeof raw.lat === 'number' && typeof raw.lng === 'number') return raw;
+  } catch (e) {
+    // ignore malformed value
+  }
+  return null;
+}
+
+function saveManualLocation(lat, lng) {
+  localStorage.setItem('muslimboard-manual-location', JSON.stringify({ lat, lng }));
+}
+
+function clearManualLocation() {
+  localStorage.removeItem('muslimboard-manual-location');
+}
+
+/**
+ * Ask the browser for one fresh GPS/network fix, ignoring any cached
+ * position — used for explicit "retry" / "use GPS" actions so a bad
+ * cached fix (common on desktops without GPS, relying on WiFi/IP
+ * positioning) doesn't get handed back again.
+ */
+function fetchFreshGpsPosition() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) { reject(new Error('no geolocation')); return; }
+    navigator.geolocation.getCurrentPosition(
+      (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
+      reject,
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  });
+}
+
+async function applyLocation(lat, lng) {
+  userLocation = { lat, lng };
+  await Promise.all([
+    getLocationName(lat, lng),
+    loadWeather(lat, lng)
+  ]);
+  updateQibla(lat, lng);
+  await loadPrayerTimes(lat, lng);
+}
 
 function getLocation() {
   return new Promise((resolve) => {
     const t = translations[currentLang];
     $('#location-name').textContent = t.locationLoading;
-    
+    $('#location-retry').style.display = 'none';
+
+    const manual = getManualLocation();
+    if (manual) {
+      userLocation = manual;
+      Promise.all([
+        getLocationName(manual.lat, manual.lng),
+        loadWeather(manual.lat, manual.lng)
+      ]).then(() => resolve(userLocation));
+      return;
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -581,39 +786,60 @@ function getLocation() {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          
+
           // Load weather and location name in parallel
           await Promise.all([
             getLocationName(userLocation.lat, userLocation.lng),
             loadWeather(userLocation.lat, userLocation.lng)
           ]);
-          
+
           resolve(userLocation);
         },
         async () => {
           // Default to Jakarta
           userLocation = { lat: -6.2088, lng: 106.8456 };
           $('#location-name').textContent = t.locationDenied;
-          
+          $('#location-retry').style.display = 'inline-block';
+
           await Promise.all([
             getLocationName(userLocation.lat, userLocation.lng),
             loadWeather(userLocation.lat, userLocation.lng)
           ]);
-          
+
           resolve(userLocation);
         },
-        { timeout: 10000 }
+        // maximumAge lets the browser reuse a recent GPS fix instead of
+        // re-acquiring one on every new-tab open. Explicit retry bypasses
+        // this via fetchFreshGpsPosition().
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30 * 60 * 1000 }
       );
     } else {
       userLocation = { lat: -6.2088, lng: 106.8456 };
       $('#location-name').textContent = t.locationDenied;
-      
+      $('#location-retry').style.display = 'inline-block';
+
       Promise.all([
         getLocationName(userLocation.lat, userLocation.lng),
         loadWeather(userLocation.lat, userLocation.lng)
       ]).then(() => resolve(userLocation));
     }
   });
+}
+
+async function useFreshGps() {
+  clearManualLocation();
+  const t = translations[currentLang];
+  $('#location-name').textContent = t.locationLoading;
+  $('#location-retry').style.display = 'none';
+
+  try {
+    const fresh = await fetchFreshGpsPosition();
+    await applyLocation(fresh.lat, fresh.lng);
+  } catch (e) {
+    $('#location-name').textContent = t.locationDenied;
+    $('#location-retry').style.display = 'inline-block';
+    await applyLocation(-6.2088, 106.8456);
+  }
 }
 
 function updateDate() {
@@ -673,6 +899,8 @@ async function loadHijriDate() {
       const hijri = data.data.hijri;
       const monthName = currentLang === 'ar' ? hijri.month.ar : hijri.month.en;
       hijriEl.textContent = `${hijri.day} ${monthName} ${hijri.year} AH`;
+      currentHijriMonth = parseInt(hijri.month.number, 10);
+      updateRamadanBanner();
     }
   } catch (e) {
     console.log('Hijri date load failed:', e);
@@ -742,7 +970,61 @@ function setupEventListeners() {
       deleteTodo(parseInt(e.target.dataset.index));
     }
   });
-  
+
+  $('#todo-export').addEventListener('click', exportTodos);
+  $('#todo-import-file').addEventListener('change', (e) => {
+    if (e.target.files[0]) importTodosFromFile(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  // Location retry (forces a fresh GPS fix, ignoring cache/manual override)
+  $('#location-retry').addEventListener('click', useFreshGps);
+
+  // Manual location override — click the location name itself, like a link
+  $('#location-name').addEventListener('click', () => {
+    const form = $('#location-manual-form');
+    const showing = form.style.display === 'flex';
+    form.style.display = showing ? 'none' : 'flex';
+    $('#location-manual-error').classList.remove('visible');
+    if (!showing && userLocation) {
+      $('#manual-lat').value = userLocation.lat.toFixed(4);
+      $('#manual-lng').value = userLocation.lng.toFixed(4);
+    }
+  });
+
+  $('#manual-save').addEventListener('click', async () => {
+    const errEl = $('#location-manual-error');
+    const t = translations[currentLang];
+    // Accept comma as decimal separator too (common in id-ID input habits).
+    const lat = parseFloat($('#manual-lat').value.trim().replace(',', '.'));
+    const lng = parseFloat($('#manual-lng').value.trim().replace(',', '.'));
+
+    if (Number.isNaN(lat) || Number.isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      errEl.textContent = t.manualInvalid;
+      errEl.classList.add('visible');
+      return;
+    }
+
+    errEl.classList.remove('visible');
+    saveManualLocation(lat, lng);
+    $('#location-manual-form').style.display = 'none';
+    $('#location-retry').style.display = 'none';
+    await applyLocation(lat, lng);
+  });
+
+  $('#manual-use-gps').addEventListener('click', () => {
+    $('#location-manual-form').style.display = 'none';
+    useFreshGps();
+  });
+
+  // Notification lead time
+  const savedLeadTime = localStorage.getItem('muslimboard-leadtime') || '10';
+  $('#notif-leadtime').value = savedLeadTime;
+  $('#notif-leadtime').addEventListener('change', (e) => {
+    localStorage.setItem('muslimboard-leadtime', e.target.value);
+    scheduleNotifications();
+  });
+
   // Prayer method
   $('#prayer-method').value = currentMethod;
   $('#prayer-method').addEventListener('change', async (e) => {
@@ -766,11 +1048,6 @@ function setupEventListeners() {
   // Internet status
   window.addEventListener('online', updateInternetStatus);
   window.addEventListener('offline', updateInternetStatus);
-  
-  // Notification permission
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
 }
 
 // ==================== INIT ====================
@@ -797,20 +1074,50 @@ const safePicsumIds = [
 ];
 
 /**
+ * Bing's Image of the Day only changes once every 24h, so cache the picked
+ * URL for the day and skip the API call on every subsequent new-tab open.
+ */
+function getCachedWallpaperUrl() {
+  try {
+    const cached = JSON.parse(localStorage.getItem('muslimboard-wallpaper') || 'null');
+    if (cached && cached.date === new Date().toDateString() && cached.url) {
+      return cached.url;
+    }
+  } catch (e) {
+    // ignore malformed cache
+  }
+  return null;
+}
+
+function cacheWallpaperUrl(url) {
+  localStorage.setItem('muslimboard-wallpaper', JSON.stringify({ url, date: new Date().toDateString() }));
+}
+
+/**
  * Load wallpaper from Bing Image of the Day (curated, generally safe)
  */
 async function loadBingWallpaper() {
+  const cachedUrl = getCachedWallpaperUrl();
+  if (cachedUrl) {
+    const cachedImg = new Image();
+    cachedImg.onload = () => document.body.style.setProperty('--bg-image', `url(${cachedUrl})`);
+    cachedImg.onerror = () => loadPicsumWallpaper();
+    cachedImg.src = cachedUrl;
+    return;
+  }
+
   try {
     const response = await fetch('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=en-US');
     const data = await response.json();
-    
+
     if (data.images && data.images.length > 0) {
       const randomImage = data.images[Math.floor(Math.random() * data.images.length)];
       const imageUrl = `https://www.bing.com${randomImage.urlbase}_1920x1080.jpg`;
-      
+
       const img = new Image();
       img.onload = () => {
         document.body.style.setProperty('--bg-image', `url(${imageUrl})`);
+        cacheWallpaperUrl(imageUrl);
       };
       img.onerror = () => {
         loadPicsumWallpaper();
@@ -862,6 +1169,7 @@ async function init() {
   
   // Get location and load prayer times (also loads weather & location name)
   await getLocation();
+  updateQibla(userLocation.lat, userLocation.lng);
   await loadPrayerTimes(userLocation.lat, userLocation.lng);
   
   // Update intervals

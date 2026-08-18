@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy - Muslim Dashboard</title>
+<style>
+  :root {
+    --primary: #1a5f3f;
+    --accent: #d4af37;
+    --bg: #0f2027;
+    --card: #17242b;
+    --text: #e8e8e8;
+    --muted: #a0a0a0;
+    --border: rgba(255,255,255,0.1);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+  h1 {
+    color: var(--accent);
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .updated {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 28px;
+  }
+  h2 {
+    color: var(--accent);
+    font-size: 1.15rem;
+    margin-top: 36px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  h3 {
+    color: var(--text);
+    font-size: 1rem;
+    margin-top: 22px;
+  }
+  p { color: var(--text); }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  strong { color: #fff; }
+  code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: rgba(255,255,255,0.05);
+    color: var(--accent);
+  }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 8px;
+  }
+  .summary-card ul { margin: 0; }
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+  .en-note {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Privacy Policy — Muslim Dashboard</h1>
+  <div class="updated">Terakhir diperbarui: 2026-08-18</div>
+
+  <p>Muslim Dashboard adalah extension browser (Firefox &amp; Chrome) yang menampilkan dashboard Islami saat membuka tab baru. Kami sangat menghargai privasi pengguna. Kebijakan ini menjelaskan data apa yang diproses extension ini dan ke mana data tersebut mengalir.</p>
+
+  <div class="summary-card">
+    <ul>
+      <li><strong>Tidak ada server milik kami.</strong> Semua data disimpan lokal di browser pengguna (<code>localStorage</code>).</li>
+      <li><strong>Tidak ada akun, tracking, atau iklan.</strong></li>
+      <li><strong>Data lokasi dikirim langsung ke API pihak ketiga yang relevan</strong> — bukan ke server kami, karena kami tidak punya server.</li>
+    </ul>
+  </div>
+
+  <h2>Data yang Diproses</h2>
+
+  <h3>1. Lokasi (Latitude/Longitude)</h3>
+  <p>Dipakai untuk menghitung jadwal sholat, arah kiblat, cuaca, dan nama lokasi. Diperoleh dari:</p>
+  <ul>
+    <li><strong>Geolocation API browser</strong> (dengan izin eksplisit dari pengguna), atau</li>
+    <li><strong>Input manual</strong> yang pengguna ketik sendiri di form "Atur lokasi manual"</li>
+  </ul>
+  <p>Lokasi disimpan lokal di <code>localStorage</code> (untuk mode manual) dan dikirim ke API eksternal berikut setiap kali dashboard dibuka:</p>
+  <table>
+    <tr><th>Layanan</th><th>Tujuan</th><th>Data yang dikirim</th></tr>
+    <tr><td><code>api.aladhan.com</code></td><td>Jadwal sholat &amp; tanggal Hijriah</td><td>latitude, longitude, metode perhitungan</td></tr>
+    <tr><td><code>api.open-meteo.com</code></td><td>Prakiraan cuaca</td><td>latitude, longitude</td></tr>
+    <tr><td><code>api.bigdatacloud.net</code></td><td>Nama kota/lokasi (reverse geocoding)</td><td>latitude, longitude</td></tr>
+  </table>
+  <p>Kami tidak mengontrol kebijakan privasi masing-masing layanan di atas — silakan cek kebijakan privasi mereka masing-masing untuk detail penanganan data di sisi mereka.</p>
+
+  <h3>2. Wallpaper</h3>
+  <p>Setiap buka tab baru, extension mengambil gambar latar dari <strong>Bing Image of the Day</strong> (<code>bing.com</code>) atau, jika gagal, dari <strong>Picsum Photos</strong> (<code>picsum.photos</code>). Tidak ada data pribadi yang dikirim ke layanan ini — hanya permintaan gambar biasa.</p>
+
+  <h3>3. Data Tersimpan Lokal (<code>localStorage</code>)</h3>
+  <p>Semua di bawah ini <strong>tidak pernah meninggalkan browser pengguna</strong>, kecuali koordinat lokasi yang memang dikirim ke API pada tabel di atas:</p>
+  <ul>
+    <li>Todo list</li>
+    <li>Bahasa &amp; metode perhitungan sholat pilihan</li>
+    <li>Lead-time notifikasi</li>
+    <li>Lokasi manual (jika diisi)</li>
+    <li>Cache wallpaper harian</li>
+  </ul>
+
+  <h3>4. Notifikasi</h3>
+  <p>Notifikasi waktu sholat dijadwalkan secara lokal melalui <code>alarms</code> API browser dan ditampilkan lewat <code>notifications</code> API browser. Tidak ada data yang dikirim keluar untuk fitur ini.</p>
+
+  <h2>Permission yang Diminta</h2>
+  <table>
+    <tr><th>Permission</th><th>Alasan</th></tr>
+    <tr><td><code>notifications</code></td><td>Menampilkan notifikasi waktu sholat</td></tr>
+    <tr><td><code>storage</code></td><td>Menyimpan todo, preferensi, dan cache secara lokal</td></tr>
+    <tr><td><code>alarms</code></td><td>Menjadwalkan notifikasi waktu sholat agar tetap berjalan walau tab ditutup</td></tr>
+  </table>
+  <p>Extension ini <strong>tidak meminta</strong> permission <code>geolocation</code> di manifest — akses lokasi memakai Geolocation API standar browser yang meminta izin langsung ke pengguna seperti situs web pada umumnya, dan bisa ditolak/dicabut kapan saja lewat pengaturan browser.</p>
+
+  <h2>Hak Pengguna</h2>
+  <ul>
+    <li>Hapus semua data lokal kapan saja lewat: uninstall extension, atau clear browser data untuk extension ini.</li>
+    <li>Cabut izin lokasi kapan saja lewat pengaturan browser (Site settings → Location).</li>
+    <li>Gunakan lokasi manual sebagai alternatif GPS.</li>
+  </ul>
+
+  <h2>Kontak</h2>
+  <p>Pertanyaan seputar kebijakan ini bisa dikirim ke pembuat extension, Ahmad Abulkhair, melalui halaman <a href="https://github.com/tgz99/muslimdash">repository proyek ini</a>.</p>
+
+  <hr>
+
+  <h2>English Summary</h2>
+  <p class="en-note">Muslim Dashboard is a browser extension with no backend server of its own. All data is stored locally in the browser (<code>localStorage</code>). Location coordinates (from the Geolocation API or manual entry) are sent directly to three third-party APIs to power prayer times (<code>api.aladhan.com</code>), weather (<code>api.open-meteo.com</code>), and location name lookup (<code>api.bigdatacloud.net</code>) — never to any server operated by us, since none exists. Wallpaper images are fetched from Bing and Picsum with no personal data attached. To-dos, preferences, and cached data stay in local browser storage and are never transmitted anywhere. The extension collects no accounts, analytics, or advertising data.</p>
+</div>
+</body>
+</html>

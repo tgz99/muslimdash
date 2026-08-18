@@ -1,0 +1,69 @@
+# Privacy Policy — Muslim Dashboard
+
+_Terakhir diperbarui: 2026-08-18_
+
+Muslim Dashboard adalah extension browser (Firefox & Chrome) yang menampilkan dashboard Islami saat membuka tab baru. Kami sangat menghargai privasi pengguna. Kebijakan ini menjelaskan data apa yang diproses extension ini dan ke mana data tersebut mengalir.
+
+## Ringkasan
+
+- **Tidak ada server milik kami.** Extension ini tidak memiliki backend sendiri. Semua data disimpan secara lokal di browser pengguna (`localStorage`).
+- **Tidak ada akun, tracking, atau iklan.** Tidak ada pendaftaran, analytics, atau iklan pihak ketiga.
+- **Data lokasi hanya dipakai untuk fitur, dikirim langsung ke API pihak ketiga yang relevan** — bukan ke server kami, karena kami tidak punya server.
+
+## Data yang Diproses
+
+### 1. Lokasi (Latitude/Longitude)
+Dipakai untuk menghitung jadwal sholat, arah kiblat, cuaca, dan nama lokasi. Diperoleh dari:
+- **Geolocation API browser** (dengan izin eksplisit dari pengguna), atau
+- **Input manual** yang pengguna ketik sendiri di form "Atur lokasi manual"
+
+Lokasi disimpan lokal di `localStorage` (untuk mode manual) dan dikirim ke API eksternal berikut setiap kali dashboard dibuka:
+
+| Layanan | Tujuan | Data yang dikirim |
+|---|---|---|
+| `api.aladhan.com` | Jadwal sholat & tanggal Hijriah | latitude, longitude, metode perhitungan |
+| `api.open-meteo.com` | Prakiraan cuaca | latitude, longitude |
+| `api.bigdatacloud.net` | Nama kota/lokasi (reverse geocoding) | latitude, longitude |
+
+Kami tidak mengontrol kebijakan privasi masing-masing layanan di atas — silakan cek kebijakan privasi mereka masing-masing untuk detail penanganan data di sisi mereka.
+
+### 2. Wallpaper
+Setiap buka tab baru, extension mengambil gambar latar dari **Bing Image of the Day** (`bing.com`) atau, jika gagal, dari **Picsum Photos** (`picsum.photos`). Tidak ada data pribadi yang dikirim ke layanan ini — hanya permintaan gambar biasa.
+
+### 3. Data Tersimpan Lokal (`localStorage`)
+Semua di bawah ini **tidak pernah meninggalkan browser pengguna**, kecuali koordinat lokasi yang memang dikirim ke API pada tabel di atas:
+
+- Todo list
+- Bahasa & metode perhitungan sholat pilihan
+- Lead-time notifikasi
+- Lokasi manual (jika diisi)
+- Cache wallpaper harian
+
+### 4. Notifikasi
+Notifikasi waktu sholat dijadwalkan secara lokal melalui `alarms` API browser dan ditampilkan lewat `notifications` API browser. Tidak ada data yang dikirim keluar untuk fitur ini.
+
+## Permission yang Diminta
+
+| Permission | Alasan |
+|---|---|
+| `notifications` | Menampilkan notifikasi waktu sholat |
+| `storage` | Menyimpan todo, preferensi, dan cache secara lokal |
+| `alarms` | Menjadwalkan notifikasi waktu sholat agar tetap berjalan walau tab ditutup |
+
+Extension ini **tidak meminta** permission `geolocation` di manifest — akses lokasi memakai Geolocation API standar browser yang meminta izin langsung ke pengguna seperti situs web pada umumnya, dan bisa ditolak/dicabut kapan saja lewat pengaturan browser.
+
+## Hak Pengguna
+
+- Hapus semua data lokal kapan saja lewat: uninstall extension, atau clear browser data untuk extension ini.
+- Cabut izin lokasi kapan saja lewat pengaturan browser (⚙️ Site settings → Location).
+- Gunakan lokasi manual sebagai alternatif GPS.
+
+## Kontak
+
+Pertanyaan seputar kebijakan ini bisa dikirim ke pembuat extension, Ahmad Abulkhair, melalui halaman repository proyek ini.
+
+---
+
+## English Summary
+
+Muslim Dashboard is a browser extension with no backend server of its own. All data is stored locally in the browser (`localStorage`). Location coordinates (from the Geolocation API or manual entry) are sent directly to three third-party APIs to power prayer times (`api.aladhan.com`), weather (`api.open-meteo.com`), and location name lookup (`api.bigdatacloud.net`) — never to any server operated by us, since none exists. Wallpaper images are fetched from Bing and Picsum with no personal data attached. To-dos, preferences, and cached data stay in local browser storage and are never transmitted anywhere. The extension collects no accounts, analytics, or advertising data.

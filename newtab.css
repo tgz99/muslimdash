@@ -107,6 +107,111 @@ body::after {
   display: block;
 }
 
+.location-name-row {
+  display: flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+.location-name-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline dashed rgba(176, 176, 176, 0.5);
+  text-underline-offset: 3px;
+  transition: var(--transition);
+}
+
+.location-name-link:hover {
+  color: var(--secondary-color);
+  text-decoration-color: var(--secondary-color);
+}
+
+.location-retry {
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 4px;
+  line-height: 1;
+  transition: var(--transition);
+}
+
+.location-retry:hover {
+  transform: rotate(180deg);
+}
+
+.location-manual-form {
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.location-manual-form input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.location-manual-form input:focus {
+  border-color: var(--secondary-color);
+}
+
+.location-manual-error {
+  color: var(--accent-red);
+  font-size: 0.7rem;
+  display: none;
+}
+
+.location-manual-error.visible {
+  display: block;
+}
+
+.location-manual-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.location-manual-actions button {
+  flex: 1;
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.location-manual-actions button:hover {
+  background: #145030;
+}
+
+#manual-use-gps {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#manual-use-gps:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .prayer-list {
   display: flex;
   flex-direction: column;
@@ -209,6 +314,25 @@ body::after {
   background: #1a1a1a;
 }
 
+.qibla-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.qibla-arrow {
+  display: inline-block;
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+  transition: transform 0.5s ease;
+}
+
 /* Center Section */
 .center-section {
   grid-area: center;
@@ -234,6 +358,30 @@ body::after {
   margin-top: 8px;
   color: var(--text-muted);
   text-align: center;
+}
+
+/* Ramadan Banner */
+.ramadan-banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: var(--border-radius);
+  padding: 10px 20px;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.ramadan-banner strong {
+  color: var(--secondary-color);
+}
+
+.ramadan-title {
+  font-weight: 600;
 }
 
 /* Quotes Section - Positioned in center area */
@@ -302,6 +450,38 @@ body::after {
   max-height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
+}
+
+.todo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.todo-io {
+  display: flex;
+  gap: 6px;
+}
+
+.todo-io button,
+.todo-io label {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--text-light);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.todo-io button:hover,
+.todo-io label:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .todo-input-container {
@@ -526,6 +706,17 @@ body::after {
 .status-dot.offline {
   background: var(--accent-red);
   box-shadow: 0 0 8px var(--accent-red);
+}
+
+.leadtime-icon {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.settings {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .settings select {
