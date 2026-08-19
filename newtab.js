@@ -170,7 +170,8 @@ const translations = {
     prayerAlertHint: 'Muncul tiap waktu sholat tiba',
     adhanLabel: 'Suara Adzan',
     adhanHint: 'Chrome saja — audio penuh saat waktu sholat tiba',
-    reportBugLabel: 'Laporkan Masalah'
+    reportBugLabel: 'Laporkan Masalah',
+    settingsLandingLink: 'Kunjungi Website'
   },
   en: {
     fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
@@ -236,7 +237,8 @@ const translations = {
     prayerAlertHint: 'Shows a notification at each prayer time',
     adhanLabel: 'Adhan Sound',
     adhanHint: 'Chrome only — full audio at prayer time',
-    reportBugLabel: 'Report a Problem'
+    reportBugLabel: 'Report a Problem',
+    settingsLandingLink: 'Visit Website'
   },
   ar: {
     fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء',
@@ -302,7 +304,8 @@ const translations = {
     prayerAlertHint: 'تظهر عند دخول كل وقت صلاة',
     adhanLabel: 'صوت الأذان',
     adhanHint: 'كروم فقط — أذان كامل عند دخول وقت الصلاة',
-    reportBugLabel: 'الإبلاغ عن مشكلة'
+    reportBugLabel: 'الإبلاغ عن مشكلة',
+    settingsLandingLink: 'زيارة الموقع'
   }
 };
 
@@ -740,6 +743,7 @@ function updateLanguageUI() {
   $('#adhan-label').textContent = t.adhanLabel;
   $('#adhan-hint').textContent = t.adhanHint;
   $('#report-bug-label').textContent = t.reportBugLabel;
+  $('#settings-landing-link').textContent = t.settingsLandingLink;
 
   // Refresh weather description if data exists
   const weatherDesc = $('#weather-desc');
@@ -1630,6 +1634,9 @@ function setupEventListeners() {
 
   $('#adhan-toggle').checked = getAdhanEnabled();
   $('#adhan-toggle').addEventListener('change', (e) => setAdhanEnabled(e.target.checked));
+
+  const manifestVersion = (browserAPI.runtime.getManifest && browserAPI.runtime.getManifest().version) || '';
+  if (manifestVersion) $('#settings-version').textContent = `v${manifestVersion}`;
 }
 
 // ==================== INIT ====================
