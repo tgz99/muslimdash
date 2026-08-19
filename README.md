@@ -74,6 +74,10 @@ muslimdash/
 
 Lihat [PRIVACY.md](PRIVACY.md) untuk detail data apa yang diproses dan ke mana data itu mengalir.
 
+## Changelog
+
+Lihat [CHANGELOG.md](CHANGELOG.md) untuk riwayat perubahan tiap versi.
+
 ## Catatan
 
 - Perhitungan jadwal sholat menggunakan algoritma standar (metode umum)
