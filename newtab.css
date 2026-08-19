@@ -463,8 +463,7 @@ body::after {
   gap: 6px;
 }
 
-.todo-io button,
-.todo-io label {
+.todo-io button {
   background: rgba(255, 255, 255, 0.08);
   border: none;
   color: var(--text-light);
@@ -479,9 +478,13 @@ body::after {
   transition: var(--transition);
 }
 
-.todo-io button:hover,
-.todo-io label:hover {
+.todo-io button:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.18);
+}
+
+.todo-io button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .todo-input-container {
@@ -1268,7 +1271,6 @@ body.theme-light .prayer-method-select select,
 body.theme-light .settings select,
 body.theme-light .quote-controls button,
 body.theme-light .todo-io button,
-body.theme-light .todo-io label,
 body.theme-light #todo-input,
 body.theme-light .reminder-time-form,
 body.theme-light .reminder-item,
@@ -1285,8 +1287,7 @@ body.theme-light .reminder-time-form input[type="time"] {
 body.theme-light .prayer-item:hover,
 body.theme-light #todo-input:focus,
 body.theme-light .quote-controls button:hover,
-body.theme-light .todo-io button:hover,
-body.theme-light .todo-io label:hover {
+body.theme-light .todo-io button:hover:not(:disabled) {
   background: rgba(59, 47, 30, 0.095);
 }
 

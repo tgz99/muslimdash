@@ -10,7 +10,7 @@ Extension browser untuk Firefox & Chrome yang menampilkan dashboard Islami saat 
 - **Amalan Harian** - Checklist dzikir & tilawah Al-Qur'an, plus pengingat sekali sehari di jam yang bisa diatur
 - **Suara Adzan** (Chrome) - Audio adzan penuh saat waktu sholat tiba, tetap terputar walau tab dashboard ditutup
 - **Quotes Islami** - Kutipan dari Al-Quran dan Hadits yang berganti secara otomatis
-- **Todo List** - Catatan tugas dengan local storage, plus export/import JSON
+- **Todo List** - Catatan tugas dengan local storage, item yang dicentang bisa dipindah naik/turun urutannya
 - **Status Internet** - Indikator online/offline
 - **Notifikasi via Alarm** - Notifikasi sholat & amalan harian tetap muncul walau tab dashboard tertutup, lead-time bisa diatur (1/5/10/15/30 menit)
 - **Multi Bahasa** - Bahasa Indonesia, English, dan Arabic

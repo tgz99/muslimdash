@@ -146,8 +146,8 @@ const translations = {
     locationRetryTitle: 'Coba lagi',
     prevQuoteTitle: 'Quote sebelumnya',
     nextQuoteTitle: 'Quote selanjutnya',
-    exportTodoTitle: 'Export todo (JSON)',
-    importTodoTitle: 'Import todo (JSON)',
+    todoMoveUpTitle: 'Naikkan item yang dicentang',
+    todoMoveDownTitle: 'Turunkan item yang dicentang',
     leadtimeTitle: 'Notifikasi sebelum waktu sholat',
     eventRefTitle: 'Referensi tanggal hari besar Islam',
     eventRefOptIndonesia: 'Indonesia (Kemenag)',
@@ -212,8 +212,8 @@ const translations = {
     locationRetryTitle: 'Try again',
     prevQuoteTitle: 'Previous quote',
     nextQuoteTitle: 'Next quote',
-    exportTodoTitle: "Export to-dos (JSON)",
-    importTodoTitle: "Import to-dos (JSON)",
+    todoMoveUpTitle: 'Move checked items up',
+    todoMoveDownTitle: 'Move checked items down',
     leadtimeTitle: 'Notify before prayer time',
     eventRefTitle: 'Islamic date reference',
     eventRefOptIndonesia: 'Indonesia (Kemenag)',
@@ -278,8 +278,8 @@ const translations = {
     locationRetryTitle: 'إعادة المحاولة',
     prevQuoteTitle: 'الاقتباس السابق',
     nextQuoteTitle: 'الاقتباس التالي',
-    exportTodoTitle: 'تصدير المهام (JSON)',
-    importTodoTitle: 'استيراد المهام (JSON)',
+    todoMoveUpTitle: 'نقل العناصر المحددة لأعلى',
+    todoMoveDownTitle: 'نقل العناصر المحددة لأسفل',
     leadtimeTitle: 'تنبيه قبل وقت الصلاة',
     eventRefTitle: 'مرجع تواريخ المناسبات الإسلامية',
     eventRefOptIndonesia: 'إندونيسيا (وزارة الأديان)',
@@ -721,8 +721,8 @@ function updateLanguageUI() {
   $('#location-retry').title = t.locationRetryTitle;
   $('#prev-quote').title = t.prevQuoteTitle;
   $('#next-quote').title = t.nextQuoteTitle;
-  $('#todo-export').title = t.exportTodoTitle;
-  $('#todo-import-label').title = t.importTodoTitle;
+  $('#todo-move-up').title = t.todoMoveUpTitle;
+  $('#todo-move-down').title = t.todoMoveDownTitle;
   $('.leadtime-icon').title = t.leadtimeTitle;
   $('#report-bug').title = t.reportBugTitle;
 
@@ -756,7 +756,7 @@ function loadTodos() {
   const todos = JSON.parse(localStorage.getItem('muslimboard-todos') || '[]');
   const container = $('#todo-items');
   container.innerHTML = '';
-  
+
   todos.forEach((todo, index) => {
     const li = document.createElement('li');
     li.className = `todo-item${todo.completed ? ' completed' : ''}`;
@@ -767,6 +767,41 @@ function loadTodos() {
     `;
     container.appendChild(li);
   });
+
+  updateTodoMoveButtonsState(todos);
+}
+
+function updateTodoMoveButtonsState(todos) {
+  const anyChecked = todos.some(t => t.completed);
+  $('#todo-move-up').disabled = !anyChecked;
+  $('#todo-move-down').disabled = !anyChecked;
+}
+
+/**
+ * Shifts every checked (completed) todo one slot toward the given
+ * direction. A single top-to-bottom (or bottom-to-top) pass swapping a
+ * checked item with its unchecked neighbor is the standard algorithm
+ * for this: it moves scattered checked items independently but keeps
+ * an already-adjacent checked group moving together as one block,
+ * since two checked neighbors never swap past each other.
+ */
+function moveCheckedTodos(direction) {
+  const todos = JSON.parse(localStorage.getItem('muslimboard-todos') || '[]');
+  if (direction < 0) {
+    for (let i = 1; i < todos.length; i++) {
+      if (todos[i].completed && !todos[i - 1].completed) {
+        [todos[i - 1], todos[i]] = [todos[i], todos[i - 1]];
+      }
+    }
+  } else {
+    for (let i = todos.length - 2; i >= 0; i--) {
+      if (todos[i].completed && !todos[i + 1].completed) {
+        [todos[i], todos[i + 1]] = [todos[i + 1], todos[i]];
+      }
+    }
+  }
+  localStorage.setItem('muslimboard-todos', JSON.stringify(todos));
+  loadTodos();
 }
 
 function addTodo() {
@@ -800,35 +835,6 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
-}
-
-function exportTodos() {
-  const todos = localStorage.getItem('muslimboard-todos') || '[]';
-  const blob = new Blob([todos], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `muslimdash-todos-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function importTodosFromFile(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (Array.isArray(imported)) {
-        localStorage.setItem('muslimboard-todos', JSON.stringify(imported));
-        loadTodos();
-      }
-    } catch (err) {
-      console.log('Todo import failed:', err);
-    }
-  };
-  reader.readAsText(file);
 }
 
 // ==================== QIBLA DIRECTION ====================
@@ -1522,11 +1528,8 @@ function setupEventListeners() {
     scheduleDailyReminder();
   });
 
-  $('#todo-export').addEventListener('click', exportTodos);
-  $('#todo-import-file').addEventListener('change', (e) => {
-    if (e.target.files[0]) importTodosFromFile(e.target.files[0]);
-    e.target.value = '';
-  });
+  $('#todo-move-up').addEventListener('click', () => moveCheckedTodos(-1));
+  $('#todo-move-down').addEventListener('click', () => moveCheckedTodos(1));
 
   // Location retry (forces a fresh GPS fix, ignoring cache/manual override)
   $('#location-retry').addEventListener('click', useFreshGps);
