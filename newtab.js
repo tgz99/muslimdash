@@ -156,6 +156,14 @@ const translations = {
     themeLabel: 'Tema',
     themeDark: 'Gelap',
     themeLight: 'Terang',
+    locationPermLabel: 'Izin Lokasi',
+    locationPermHint: 'Dipakai buat jadwal sholat, kiblat & cuaca',
+    permGranted: '✓ Diizinkan',
+    permDenied: '✕ Ditolak',
+    permPrompt: '? Belum Diminta',
+    permRequest: 'Minta Izin',
+    permDeniedHint: 'Diblokir — klik ikon 🔒 di address bar buat izinin lagi',
+    permUnknown: 'Tidak diketahui',
     prayerAlertLabel: 'Notifikasi Waktu Sholat',
     prayerAlertHint: 'Muncul tiap waktu sholat tiba',
     adhanLabel: 'Suara Adzan',
@@ -212,6 +220,14 @@ const translations = {
     themeLabel: 'Theme',
     themeDark: 'Dark',
     themeLight: 'Light',
+    locationPermLabel: 'Location Permission',
+    locationPermHint: 'Used for prayer times, qibla & weather',
+    permGranted: '✓ Allowed',
+    permDenied: '✕ Blocked',
+    permPrompt: '? Not asked yet',
+    permRequest: 'Request Access',
+    permDeniedHint: 'Blocked — click the 🔒 icon in the address bar to re-enable',
+    permUnknown: 'Unknown',
     prayerAlertLabel: 'Prayer Time Alerts',
     prayerAlertHint: 'Shows a notification at each prayer time',
     adhanLabel: 'Adhan Sound',
@@ -268,6 +284,14 @@ const translations = {
     themeLabel: 'المظهر',
     themeDark: 'داكن',
     themeLight: 'فاتح',
+    locationPermLabel: 'إذن الموقع',
+    locationPermHint: 'يُستخدم لمواقيت الصلاة والقبلة والطقس',
+    permGranted: '✓ مسموح',
+    permDenied: '✕ محظور',
+    permPrompt: '؟ لم يُطلب بعد',
+    permRequest: 'طلب الإذن',
+    permDeniedHint: 'محظور — انقر أيقونة 🔒 في شريط العنوان لإعادة التفعيل',
+    permUnknown: 'غير معروف',
     prayerAlertLabel: 'تنبيهات وقت الصلاة',
     prayerAlertHint: 'تظهر عند دخول كل وقت صلاة',
     adhanLabel: 'صوت الأذان',
@@ -687,6 +711,9 @@ function updateLanguageUI() {
   $('#theme-label').textContent = t.themeLabel;
   $('#theme-dark-label').textContent = t.themeDark;
   $('#theme-light-label').textContent = t.themeLight;
+  $('#location-perm-label').textContent = t.locationPermLabel;
+  if ($('#settings-overlay').style.display === 'flex') refreshLocationPermissionUI();
+
   $('#prayer-alert-label').textContent = t.prayerAlertLabel;
   $('#prayer-alert-hint').textContent = t.prayerAlertHint;
   $('#adhan-label').textContent = t.adhanLabel;
@@ -1115,8 +1142,79 @@ function setPrayerAlertEnabled(enabled) {
   browserAPI.runtime.sendMessage({ type: 'SET_PRAYER_ALERT_ENABLED', enabled }).catch(() => {});
 }
 
+/**
+ * The extension only ever asks for one real permission from the user:
+ * location (everything else — notifications/storage/alarms — is granted
+ * automatically at install since they're declared in the manifest).
+ * navigator.permissions lets us show its actual current state instead of
+ * guessing from whether we already have a location cached.
+ */
+async function refreshLocationPermissionUI() {
+  const badge = $('#location-perm-badge');
+  const btn = $('#location-perm-btn');
+  if (!badge || !btn) return;
+  const t = translations[currentLang];
+
+  if (!navigator.permissions || !navigator.permissions.query) {
+    badge.textContent = t.permUnknown;
+    badge.className = 'perm-badge';
+    btn.style.display = 'none';
+    return;
+  }
+
+  try {
+    const status = await navigator.permissions.query({ name: 'geolocation' });
+    renderLocationPermState(status.state);
+    status.onchange = () => renderLocationPermState(status.state);
+  } catch (e) {
+    badge.textContent = t.permUnknown;
+    badge.className = 'perm-badge';
+    btn.style.display = 'none';
+  }
+}
+
+function renderLocationPermState(state) {
+  const badge = $('#location-perm-badge');
+  const hint = $('#location-perm-hint');
+  const btn = $('#location-perm-btn');
+  const t = translations[currentLang];
+
+  badge.className = 'perm-badge perm-' + state;
+
+  if (state === 'granted') {
+    badge.textContent = t.permGranted;
+    hint.textContent = t.locationPermHint;
+    btn.style.display = 'none';
+  } else if (state === 'denied') {
+    badge.textContent = t.permDenied;
+    hint.textContent = t.permDeniedHint;
+    btn.style.display = 'none';
+  } else {
+    badge.textContent = t.permPrompt;
+    hint.textContent = t.locationPermHint;
+    btn.textContent = t.permRequest;
+    btn.style.display = 'inline-block';
+  }
+}
+
+/**
+ * Only reachable while state is "prompt" (the button is hidden for
+ * "granted"/"denied") — calling getCurrentPosition is what actually
+ * triggers the browser's native permission dialog.
+ */
+function requestLocationPermission() {
+  navigator.geolocation.getCurrentPosition(
+    async () => {
+      await refreshLocationPermissionUI();
+      await useFreshGps();
+    },
+    () => refreshLocationPermissionUI()
+  );
+}
+
 function openSettingsPanel() {
   $('#settings-overlay').style.display = 'flex';
+  refreshLocationPermissionUI();
 }
 
 function closeSettingsPanel() {
@@ -1496,6 +1594,8 @@ function setupEventListeners() {
   $('#settings-overlay').addEventListener('click', (e) => {
     if (e.target === $('#settings-overlay')) closeSettingsPanel();
   });
+
+  $('#location-perm-btn').addEventListener('click', requestLocationPermission);
 
   $('#theme-dark-btn').addEventListener('click', () => applyTheme('dark'));
   $('#theme-light-btn').addEventListener('click', () => applyTheme('light'));

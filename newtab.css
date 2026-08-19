@@ -1039,6 +1039,53 @@ body::after {
   outline-offset: 2px;
 }
 
+.perm-status-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.perm-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.perm-badge.perm-granted {
+  background: rgba(46, 204, 113, 0.15);
+  color: var(--accent-green);
+}
+
+.perm-badge.perm-denied {
+  background: rgba(231, 76, 60, 0.15);
+  color: var(--accent-red);
+}
+
+.perm-badge.perm-prompt {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--secondary-color);
+}
+
+.perm-action-btn {
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.perm-action-btn:hover {
+  background: #145030;
+}
+
 .settings-row-action {
   padding-top: 16px;
 }
