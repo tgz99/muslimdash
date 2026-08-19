@@ -150,6 +150,8 @@ const translations = {
     importTodoTitle: 'Import todo (JSON)',
     leadtimeTitle: 'Notifikasi sebelum waktu sholat',
     eventRefTitle: 'Referensi tanggal hari besar Islam',
+    eventRefOptIndonesia: 'Indonesia (Kemenag)',
+    eventRefOptGlobal: 'Global (Hisab)',
     reportBugTitle: 'Laporkan masalah',
     settingsTitle: 'Pengaturan',
     settingsCloseTitle: 'Tutup',
@@ -214,6 +216,8 @@ const translations = {
     importTodoTitle: "Import to-dos (JSON)",
     leadtimeTitle: 'Notify before prayer time',
     eventRefTitle: 'Islamic date reference',
+    eventRefOptIndonesia: 'Indonesia (Kemenag)',
+    eventRefOptGlobal: 'Global (Hisab calculation)',
     reportBugTitle: 'Report a problem',
     settingsTitle: 'Settings',
     settingsCloseTitle: 'Close',
@@ -278,6 +282,8 @@ const translations = {
     importTodoTitle: 'استيراد المهام (JSON)',
     leadtimeTitle: 'تنبيه قبل وقت الصلاة',
     eventRefTitle: 'مرجع تواريخ المناسبات الإسلامية',
+    eventRefOptIndonesia: 'إندونيسيا (وزارة الأديان)',
+    eventRefOptGlobal: 'عالمي (حساب فلكي)',
     reportBugTitle: 'الإبلاغ عن مشكلة',
     settingsTitle: 'الإعدادات',
     settingsCloseTitle: 'إغلاق',
@@ -700,8 +706,10 @@ function updateLanguageUI() {
   $('#manual-lat').placeholder = t.manualLatPlaceholder;
   $('#manual-lng').placeholder = t.manualLngPlaceholder;
 
-  $('#event-ref').style.display = currentLang === 'en' ? 'inline-block' : 'none';
+  $('#event-ref').style.display = currentLang !== 'id' ? 'inline-block' : 'none';
   $('#event-ref').title = t.eventRefTitle;
+  $('#event-ref-opt-id').textContent = t.eventRefOptIndonesia;
+  $('#event-ref-opt-global').textContent = t.eventRefOptGlobal;
   computeUpcomingEvents();
 
   renderReminders();
@@ -900,7 +908,10 @@ const ISLAMIC_EVENTS = [
 const BIG_THREE_EVENT_KEYS = ['ramadhan', 'idulfitri', 'iduladha'];
 
 function getEventRef() {
-  if (currentLang !== 'en') return 'id';
+  // Indonesian UI always follows Kemenag with no prompt (per the original
+  // request); English and Arabic UIs get the actual choice since their
+  // audience isn't assumed to want the Indonesia-specific reference.
+  if (currentLang === 'id') return 'id';
   return localStorage.getItem('muslimboard-event-ref') || 'id';
 }
 
@@ -1727,7 +1738,7 @@ function loadWallpaper() {
 async function init() {
   setupEventListeners();
   applyTheme(currentTheme);
-  $('#event-ref').style.display = currentLang === 'en' ? 'inline-block' : 'none';
+  $('#event-ref').style.display = currentLang !== 'id' ? 'inline-block' : 'none';
   loadTodos();
   loadReminderState();
   renderReminders();
