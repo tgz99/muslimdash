@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changelog - The Muslim Way</title>
+<style>
+  :root {
+    --primary: #1a5f3f;
+    --accent: #d4af37;
+    --bg: #0f2027;
+    --card: #17242b;
+    --text: #e8e8e8;
+    --muted: #a0a0a0;
+    --border: rgba(255,255,255,0.1);
+    --added: #2ecc71;
+    --changed: #d4af37;
+    --fixed: #e67e22;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+  .back-link {
+    display: inline-block;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { color: var(--accent); }
+  h1 {
+    color: var(--accent);
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 36px;
+  }
+  .version-block {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .version-block:last-child {
+    border-bottom: none;
+  }
+  .version-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .version-num {
+    color: var(--accent);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .version-date {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 2px 9px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .tag-added { background: rgba(46,204,113,0.15); color: var(--added); }
+  .tag-changed { background: rgba(212,175,55,0.15); color: var(--changed); }
+  .tag-fixed { background: rgba(230,126,34,0.15); color: var(--fixed); }
+  .entry { margin-bottom: 20px; }
+  .entry:last-child { margin-bottom: 0; }
+  ul { padding-left: 20px; margin: 0; }
+  li { margin-bottom: 8px; }
+  strong { color: #fff; }
+  code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="index.html">← Kembali ke halaman utama</a>
+  <h1>Changelog</h1>
+  <div class="subtitle">Riwayat perubahan The Muslim Way, dari versi 1.2.1 sampai sekarang.</div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.6.0</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-changed">Diubah</span>
+      <ul>
+        <li>Tombol Export/Import todo (JSON) diganti jadi ▲/▼ <strong>Move Up/Down</strong>. Nonaktif secara default, aktif begitu ada item todo yang dicentang. Item yang dicentang bisa dipindah naik/turun urutannya; beberapa item yang dicentang berdekatan bakal gerak bareng sebagai satu grup.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.5.5</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-changed">Diubah</span>
+      <ul>
+        <li>Ukuran judul "Amalan Harian" disamain sama judul card lain ("Jadwal Sholat", "Todo List") — sebelumnya lebih kecil, sekarang konsisten.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.5.4</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-fixed">Diperbaiki</span>
+      <ul>
+        <li>Perhitungan jadwal sholat lokal (dipakai kalau API Aladhan gak bisa diakses, atau user pilih metode "Algoritma Standar/Lokal" manual) punya 3 bug numpuk:
+          <ul>
+            <li>Penyesuaian timezone device kebatalin sendiri secara aljabar — DST (Daylight Saving Time) dihitung tapi gak pernah kepake di hasil akhir.</li>
+            <li>Arah pagi/sore buat Asr, Maghrib, Isya salah ketebak dari tanda plus/minus sudut.</li>
+            <li>Maghrib &amp; Isya kena penyesuaian dobel akibat pemanggilan fungsi rekursif.</li>
+          </ul>
+        </li>
+        <li>Sebelum fix: Maghrib bisa keluar jam 13:10, Isya jam 12:03 (harusnya ~17:54 dan ~19:05) — meleset sampai 7 jam. Setelah fix: divalidasi ke Aladhan API buat Jakarta, semua 6 waktu sholat cuma beda 3-8 menit (wajar, beda metode kalkulasi).</li>
+        <li>Jalur API (metode default, Kemenag RI dkk) tidak terdampak — ini murni bug di fallback lokal.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.5.3</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-changed">Diubah</span>
+      <ul>
+        <li>Palet warna tema Terang diganti dari putih/abu-abu polos jadi warm parchment/sand — kartu, teks, border, shadow semua pakai tint coklat hangat yang konsisten.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.5.2</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-changed">Diubah</span>
+      <ul>
+        <li>Dropdown pilihan referensi tanggal hari besar Islam (Indonesia/Kemenag vs Global/Hisab) sekarang muncul juga buat bahasa Arab, tidak cuma Inggris. Bahasa Indonesia tetap otomatis ikut Kemenag tanpa nanya.</li>
+        <li>Teks opsi dropdown itu sendiri dilokalin ke 3 bahasa — sebelumnya hardcode Inggris terus.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.5.1</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-fixed">Diperbaiki</span>
+      <ul>
+        <li>Suara adzan sebelumnya numpang di alarm notifikasi yang punya offset lead-time — kalau lead-time diset 10 menit, adzan ikut bunyi 10 menit lebih awal dari waktu sholat sebenarnya. Sekarang dipisah jadi alarm terpisah.</li>
+        <li>Tombol "Minta Izin" lokasi di panel Pengaturan sebelumnya query GPS dua kali per klik. Sekarang cuma sekali.</li>
+        <li>Dibersihin: 1 CSS selector mati di tema Terang yang gak pernah match apa pun.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.5.0</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-changed">Diubah</span>
+      <ul>
+        <li>Nama extension diganti dari "Muslim Dashboard" jadi <strong>"The Muslim Way"</strong> — manifest, judul halaman, landing page, dokumen privasi.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.4.2</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-added">Ditambahkan</span>
+      <ul>
+        <li>Status Izin Lokasi di panel Pengaturan — badge (Diizinkan/Ditolak/Belum Diminta) + tombol "Minta Izin" yang cuma muncul kalau status masih "belum diminta".</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.4.1</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-added">Ditambahkan</span>
+      <ul>
+        <li>Toggle "Notifikasi Waktu Sholat" on/off di panel Pengaturan, default <strong>ON</strong>. Independen dari toggle suara adzan.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.4.0</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-added">Ditambahkan</span>
+      <ul>
+        <li><strong>Suara Adzan</strong> (Chrome saja) — audio adzan asli diputar saat waktu sholat tiba, tetap jalan walau tab dashboard ditutup. Audio bersumber dari Internet Archive, lisensi Public Domain Mark 1.0.</li>
+        <li><strong>Panel Pengaturan</strong> (⚙️) — theme, suara adzan, dan lapor bug dalam satu tempat.</li>
+        <li><strong>Tema Terang</strong> — palet kedua yang genuine, bisa dipilih dari panel Pengaturan.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.3.1</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-changed">Diubah</span>
+      <ul>
+        <li>Styling tombol lapor bug disederhanain — ikon polos yang nyatu sama ikon lain di settings bar.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.3.0</span>
+      <span class="version-date">19 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-added">Ditambahkan</span>
+      <ul>
+        <li>Log error lokal (maksimal 20 entri, cuma nulis pas ada error beneran) + tombol 🐛 "Laporkan Masalah" yang buka draft email ke developer. Tidak ada yang terkirim otomatis.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-head">
+      <span class="version-num">1.2.1</span>
+      <span class="version-date">18 Agustus 2026</span>
+    </div>
+    <div class="entry">
+      <span class="tag tag-fixed">Diperbaiki</span>
+      <ul>
+        <li>Beberapa teks statis (label "Waktu sholat selanjutnya", "dalam", dan sejumlah tooltip) gak pernah tersambung ke sistem terjemahan.</li>
+        <li>Bug lebih besar di baliknya: bahasa tersimpan dari sesi sebelumnya gak otomatis diterapin pas buka tab baru, baru kepasang setelah user oprek dropdown bahasa lagi.</li>
+        <li>Update alamat kontak jadi kontak@tukangweb.id di semua tempat.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
