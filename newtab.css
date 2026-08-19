@@ -876,6 +876,23 @@ body::after {
   background: #1a1a1a;
 }
 
+.report-bug-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: var(--transition);
+  line-height: 1;
+}
+
+.report-bug-btn:hover {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }

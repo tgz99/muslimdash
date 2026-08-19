@@ -149,7 +149,8 @@ const translations = {
     exportTodoTitle: 'Export todo (JSON)',
     importTodoTitle: 'Import todo (JSON)',
     leadtimeTitle: 'Notifikasi sebelum waktu sholat',
-    eventRefTitle: 'Referensi tanggal hari besar Islam'
+    eventRefTitle: 'Referensi tanggal hari besar Islam',
+    reportBugTitle: 'Laporkan masalah'
   },
   en: {
     fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
@@ -194,7 +195,8 @@ const translations = {
     exportTodoTitle: "Export to-dos (JSON)",
     importTodoTitle: "Import to-dos (JSON)",
     leadtimeTitle: 'Notify before prayer time',
-    eventRefTitle: 'Islamic date reference'
+    eventRefTitle: 'Islamic date reference',
+    reportBugTitle: 'Report a problem'
   },
   ar: {
     fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء',
@@ -239,7 +241,8 @@ const translations = {
     exportTodoTitle: 'تصدير المهام (JSON)',
     importTodoTitle: 'استيراد المهام (JSON)',
     leadtimeTitle: 'تنبيه قبل وقت الصلاة',
-    eventRefTitle: 'مرجع تواريخ المناسبات الإسلامية'
+    eventRefTitle: 'مرجع تواريخ المناسبات الإسلامية',
+    reportBugTitle: 'الإبلاغ عن مشكلة'
   }
 };
 
@@ -645,6 +648,7 @@ function updateLanguageUI() {
   $('#todo-export').title = t.exportTodoTitle;
   $('#todo-import-label').title = t.importTodoTitle;
   $('.leadtime-icon').title = t.leadtimeTitle;
+  $('#report-bug').title = t.reportBugTitle;
 
   // Refresh weather description if data exists
   const weatherDesc = $('#weather-desc');
@@ -959,6 +963,80 @@ function scheduleDailyReminder() {
     minute,
     lang: currentLang
   }).catch(() => {});
+}
+
+// ==================== ERROR LOG & BUG REPORT ====================
+
+/**
+ * Local-only ring buffer, capped at MAX_ERROR_LOG entries — only written
+ * when an actual error fires, never a general activity log. Nothing here
+ * ever leaves the device automatically; it's only read when the user
+ * explicitly clicks "Report a problem", which opens a pre-filled mailto
+ * link. No backend, no telemetry — keeps the privacy policy's "no
+ * tracking" claim true.
+ */
+const MAX_ERROR_LOG = 20;
+
+function logError(message, detail) {
+  try {
+    const log = JSON.parse(localStorage.getItem('muslimboard-errorlog') || '[]');
+    log.push({
+      time: new Date().toISOString(),
+      message: String(message).slice(0, 300),
+      detail: detail ? String(detail).split('\n')[0].slice(0, 300) : ''
+    });
+    while (log.length > MAX_ERROR_LOG) log.shift();
+    localStorage.setItem('muslimboard-errorlog', JSON.stringify(log));
+  } catch (e) {
+    // localStorage full/unavailable — nothing more we can do
+  }
+}
+
+window.addEventListener('error', (e) => {
+  logError(e.message, e.error && e.error.stack ? e.error.stack : `${e.filename}:${e.lineno}:${e.colno}`);
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+  const reason = e.reason;
+  const msg = reason && reason.message ? reason.message : String(reason);
+  logError('Unhandled promise rejection: ' + msg, reason && reason.stack ? reason.stack : '');
+});
+
+function buildBugReportBody() {
+  let log = [];
+  try {
+    log = JSON.parse(localStorage.getItem('muslimboard-errorlog') || '[]');
+  } catch (e) {
+    // ignore malformed log
+  }
+  const recent = log.slice(-5);
+  const version = (browserAPI.runtime.getManifest && browserAPI.runtime.getManifest().version) || 'unknown';
+
+  const lines = [
+    `Muslim Dashboard v${version}`,
+    `Bahasa: ${currentLang}`,
+    `Browser: ${navigator.userAgent}`,
+    '',
+    'Error terakhir yang tercatat:'
+  ];
+
+  if (recent.length === 0) {
+    lines.push('(tidak ada error tercatat)');
+  } else {
+    recent.forEach(entry => {
+      lines.push(`- [${entry.time}] ${entry.message}${entry.detail ? ' — ' + entry.detail : ''}`);
+    });
+  }
+
+  lines.push('', 'Ceritakan apa yang terjadi sebelum masalah ini muncul:', '');
+
+  return lines.join('\n').slice(0, 1800);
+}
+
+function reportProblem() {
+  const subject = encodeURIComponent('Muslim Dashboard - Laporan Masalah');
+  const body = encodeURIComponent(buildBugReportBody());
+  window.open(`mailto:kontak@tukangweb.id?subject=${subject}&body=${body}`, '_self');
 }
 
 // ==================== LOCATION & INIT ====================
@@ -1324,6 +1402,9 @@ function setupEventListeners() {
   // Internet status
   window.addEventListener('online', updateInternetStatus);
   window.addEventListener('offline', updateInternetStatus);
+
+  // Bug report
+  $('#report-bug').addEventListener('click', reportProblem);
 }
 
 // ==================== INIT ====================

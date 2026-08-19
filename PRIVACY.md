@@ -1,6 +1,6 @@
 # Privacy Policy — Muslim Dashboard
 
-_Terakhir diperbarui: 2026-08-18_
+_Terakhir diperbarui: 2026-08-19_
 
 Muslim Dashboard adalah extension browser (Firefox & Chrome) yang menampilkan dashboard Islami saat membuka tab baru. Kami sangat menghargai privasi pengguna. Kebijakan ini menjelaskan data apa yang diproses extension ini dan ke mana data tersebut mengalir.
 
@@ -38,9 +38,13 @@ Semua di bawah ini **tidak pernah meninggalkan browser pengguna**, kecuali koord
 - Lead-time notifikasi
 - Lokasi manual (jika diisi)
 - Cache wallpaper harian
+- Log error (maksimal 20 entri terakhir, hanya ditulis saat benar-benar terjadi error — bukan log aktivitas umum)
 
 ### 4. Notifikasi
 Notifikasi waktu sholat dijadwalkan secara lokal melalui `alarms` API browser dan ditampilkan lewat `notifications` API browser. Tidak ada data yang dikirim keluar untuk fitur ini.
+
+### 5. Laporan Masalah (opsional, manual)
+Tombol 🐛 di dashboard membuka email (`mailto:`) berisi beberapa error terakhir yang tercatat lokal, versi extension, dan info browser — ditujukan ke kontak@tukangweb.id. **Tidak ada yang terkirim otomatis**: draft email hanya terbuka kalau pengguna sendiri yang klik tombolnya, dan pengguna bebas mengedit atau membatalkan sebelum benar-benar mengirim.
 
 ## Permission yang Diminta
 
