@@ -39,7 +39,7 @@ Semua di bawah ini **tidak pernah meninggalkan browser pengguna**, kecuali koord
 - Lokasi manual (jika diisi)
 - Cache wallpaper harian
 - Log error (maksimal 20 entri terakhir, hanya ditulis saat benar-benar terjadi error — bukan log aktivitas umum)
-- Preferensi tema (gelap/terang) dan suara adzan (aktif/nonaktif)
+- Preferensi tema (gelap/terang), notifikasi waktu sholat (aktif/nonaktif), dan suara adzan (aktif/nonaktif)
 
 ### 4. Notifikasi
 Notifikasi waktu sholat dijadwalkan secara lokal melalui `alarms` API browser dan ditampilkan lewat `notifications` API browser. Tidak ada data yang dikirim keluar untuk fitur ini.

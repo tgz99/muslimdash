@@ -156,6 +156,8 @@ const translations = {
     themeLabel: 'Tema',
     themeDark: 'Gelap',
     themeLight: 'Terang',
+    prayerAlertLabel: 'Notifikasi Waktu Sholat',
+    prayerAlertHint: 'Muncul tiap waktu sholat tiba',
     adhanLabel: 'Suara Adzan',
     adhanHint: 'Chrome saja — audio penuh saat waktu sholat tiba',
     reportBugLabel: 'Laporkan Masalah'
@@ -210,6 +212,8 @@ const translations = {
     themeLabel: 'Theme',
     themeDark: 'Dark',
     themeLight: 'Light',
+    prayerAlertLabel: 'Prayer Time Alerts',
+    prayerAlertHint: 'Shows a notification at each prayer time',
     adhanLabel: 'Adhan Sound',
     adhanHint: 'Chrome only — full audio at prayer time',
     reportBugLabel: 'Report a Problem'
@@ -264,6 +268,8 @@ const translations = {
     themeLabel: 'المظهر',
     themeDark: 'داكن',
     themeLight: 'فاتح',
+    prayerAlertLabel: 'تنبيهات وقت الصلاة',
+    prayerAlertHint: 'تظهر عند دخول كل وقت صلاة',
     adhanLabel: 'صوت الأذان',
     adhanHint: 'كروم فقط — أذان كامل عند دخول وقت الصلاة',
     reportBugLabel: 'الإبلاغ عن مشكلة'
@@ -681,6 +687,8 @@ function updateLanguageUI() {
   $('#theme-label').textContent = t.themeLabel;
   $('#theme-dark-label').textContent = t.themeDark;
   $('#theme-light-label').textContent = t.themeLight;
+  $('#prayer-alert-label').textContent = t.prayerAlertLabel;
+  $('#prayer-alert-hint').textContent = t.prayerAlertHint;
   $('#adhan-label').textContent = t.adhanLabel;
   $('#adhan-hint').textContent = t.adhanHint;
   $('#report-bug-label').textContent = t.reportBugLabel;
@@ -1096,6 +1104,17 @@ function setAdhanEnabled(enabled) {
   browserAPI.runtime.sendMessage({ type: 'SET_ADHAN_ENABLED', enabled }).catch(() => {});
 }
 
+// Notifications have always fired by default, so absence of the key
+// (new install, or set before this toggle existed) must mean "on".
+function getPrayerAlertEnabled() {
+  return localStorage.getItem('muslimboard-prayer-alert') !== '0';
+}
+
+function setPrayerAlertEnabled(enabled) {
+  localStorage.setItem('muslimboard-prayer-alert', enabled ? '1' : '0');
+  browserAPI.runtime.sendMessage({ type: 'SET_PRAYER_ALERT_ENABLED', enabled }).catch(() => {});
+}
+
 function openSettingsPanel() {
   $('#settings-overlay').style.display = 'flex';
 }
@@ -1480,6 +1499,9 @@ function setupEventListeners() {
 
   $('#theme-dark-btn').addEventListener('click', () => applyTheme('dark'));
   $('#theme-light-btn').addEventListener('click', () => applyTheme('light'));
+
+  $('#prayer-alert-toggle').checked = getPrayerAlertEnabled();
+  $('#prayer-alert-toggle').addEventListener('change', (e) => setPrayerAlertEnabled(e.target.checked));
 
   $('#adhan-toggle').checked = getAdhanEnabled();
   $('#adhan-toggle').addEventListener('change', (e) => setAdhanEnabled(e.target.checked));

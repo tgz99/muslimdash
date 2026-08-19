@@ -19,11 +19,14 @@ const prayerNames = {
  * before the notification/adhan logic runs.
  */
 async function getSettings() {
-  const stored = await browserAPI.storage.local.get(['notifLang', 'reminderLang', 'adhanEnabled']);
+  const stored = await browserAPI.storage.local.get(['notifLang', 'reminderLang', 'adhanEnabled', 'prayerAlertEnabled']);
   return {
     notifLang: stored.notifLang || 'id',
     reminderLang: stored.reminderLang || 'id',
-    adhanEnabled: stored.adhanEnabled === true
+    adhanEnabled: stored.adhanEnabled === true,
+    // Notifications have always fired by default, so an unset value
+    // (new install, or set before this toggle existed) must mean "on".
+    prayerAlertEnabled: stored.prayerAlertEnabled !== false
   };
 }
 
@@ -130,7 +133,9 @@ browserAPI.alarms.onAlarm.addListener(async (alarm) => {
 
   if (!alarm.name.startsWith('prayer-')) return;
   const prayerKey = alarm.name.slice('prayer-'.length);
-  showPrayerNotification(prayerKey, settings.notifLang);
+  if (settings.prayerAlertEnabled) {
+    showPrayerNotification(prayerKey, settings.notifLang);
+  }
   if (settings.adhanEnabled) {
     playAdhan(prayerKey);
   }
@@ -158,6 +163,9 @@ browserAPI.runtime.onMessage.addListener((message) => {
   }
   if (message.type === 'SET_ADHAN_ENABLED') {
     browserAPI.storage.local.set({ adhanEnabled: !!message.enabled });
+  }
+  if (message.type === 'SET_PRAYER_ALERT_ENABLED') {
+    browserAPI.storage.local.set({ prayerAlertEnabled: !!message.enabled });
   }
 });
 
