@@ -948,6 +948,7 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .settings-row-label {
@@ -1265,7 +1266,6 @@ body.theme-light .quote-controls button,
 body.theme-light .todo-io button,
 body.theme-light .todo-io label,
 body.theme-light #todo-input,
-body.theme-light .reminder-time-btn ~ .reminder-time-form,
 body.theme-light .reminder-time-form,
 body.theme-light .reminder-item,
 body.theme-light .theme-toggle-group,

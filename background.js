@@ -92,18 +92,27 @@ async function playAdhan(prayerKey) {
 }
 
 /**
- * Replace all scheduled prayer alarms with a fresh set.
- * Called whenever the new-tab page recomputes prayer times
- * (on load, method change, or lead-time change).
+ * Replace all scheduled prayer + adhan alarms with a fresh set. Called
+ * whenever the new-tab page recomputes prayer times (on load, method
+ * change, or lead-time change). Kept as two separate alarm families —
+ * "prayer-*" (notification, shifted by lead-time) and "adhan-*" (audio,
+ * always exactly at prayer time) — since they must not fire together.
  */
-async function rescheduleAlarms(schedule) {
+async function rescheduleAlarms(schedule, adhanSchedule) {
   const alarms = await browserAPI.alarms.getAll();
   await Promise.all(
-    alarms.filter(a => a.name.startsWith('prayer-')).map(a => browserAPI.alarms.clear(a.name))
+    alarms
+      .filter(a => a.name.startsWith('prayer-') || a.name.startsWith('adhan-'))
+      .map(a => browserAPI.alarms.clear(a.name))
   );
   for (const [prayer, when] of Object.entries(schedule)) {
     if (when > Date.now()) {
       browserAPI.alarms.create(`prayer-${prayer}`, { when });
+    }
+  }
+  for (const [prayer, when] of Object.entries(adhanSchedule || {})) {
+    if (when > Date.now()) {
+      browserAPI.alarms.create(`adhan-${prayer}`, { when });
     }
   }
 }
@@ -131,13 +140,17 @@ browserAPI.alarms.onAlarm.addListener(async (alarm) => {
     return;
   }
 
+  if (alarm.name.startsWith('adhan-')) {
+    if (settings.adhanEnabled) {
+      playAdhan(alarm.name.slice('adhan-'.length));
+    }
+    return;
+  }
+
   if (!alarm.name.startsWith('prayer-')) return;
   const prayerKey = alarm.name.slice('prayer-'.length);
   if (settings.prayerAlertEnabled) {
     showPrayerNotification(prayerKey, settings.notifLang);
-  }
-  if (settings.adhanEnabled) {
-    playAdhan(prayerKey);
   }
 });
 
@@ -155,7 +168,7 @@ if (browserAPI.notifications && browserAPI.notifications.onClicked) {
 browserAPI.runtime.onMessage.addListener((message) => {
   if (message.type === 'SCHEDULE_PRAYER_ALARMS') {
     browserAPI.storage.local.set({ notifLang: message.lang || 'id' });
-    rescheduleAlarms(message.schedule);
+    rescheduleAlarms(message.schedule, message.adhanSchedule);
   }
   if (message.type === 'SCHEDULE_DAILY_REMINDER') {
     browserAPI.storage.local.set({ reminderLang: message.lang || 'id' });

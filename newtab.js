@@ -498,19 +498,31 @@ function scheduleNotifications() {
   const leadMinutes = parseInt(localStorage.getItem('muslimboard-leadtime') || '10', 10);
   const now = new Date();
   const schedule = {};
+  const adhanSchedule = {};
 
   ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
     const prayerTime = hourToTime(prayerTimes[prayer]);
+
+    // Notification: honors the lead-time setting (a heads-up before prayer).
     let notifyAt = new Date(prayerTime.getTime() - leadMinutes * 60000);
     if (notifyAt <= now) {
       notifyAt = new Date(notifyAt.getTime() + 24 * 3600000);
     }
     schedule[prayer] = notifyAt.getTime();
+
+    // Adhan audio: must play exactly at prayer time, never shifted by
+    // the lead-time — that setting is only meant for the notification.
+    let adhanAt = new Date(prayerTime.getTime());
+    if (adhanAt <= now) {
+      adhanAt = new Date(adhanAt.getTime() + 24 * 3600000);
+    }
+    adhanSchedule[prayer] = adhanAt.getTime();
   });
 
   browserAPI.runtime.sendMessage({
     type: 'SCHEDULE_PRAYER_ALARMS',
     schedule,
+    adhanSchedule,
     lang: currentLang
   }).catch(() => {});
 }
@@ -1202,14 +1214,12 @@ function renderLocationPermState(state) {
  * "granted"/"denied") — calling getCurrentPosition is what actually
  * triggers the browser's native permission dialog.
  */
-function requestLocationPermission() {
-  navigator.geolocation.getCurrentPosition(
-    async () => {
-      await refreshLocationPermissionUI();
-      await useFreshGps();
-    },
-    () => refreshLocationPermissionUI()
-  );
+async function requestLocationPermission() {
+  // useFreshGps() already calls getCurrentPosition() internally, which is
+  // what actually triggers the browser's native permission prompt when
+  // state is "prompt" — no need for a separate query here first.
+  await useFreshGps();
+  refreshLocationPermissionUI();
 }
 
 function openSettingsPanel() {
