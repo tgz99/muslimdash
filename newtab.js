@@ -150,7 +150,15 @@ const translations = {
     importTodoTitle: 'Import todo (JSON)',
     leadtimeTitle: 'Notifikasi sebelum waktu sholat',
     eventRefTitle: 'Referensi tanggal hari besar Islam',
-    reportBugTitle: 'Laporkan masalah'
+    reportBugTitle: 'Laporkan masalah',
+    settingsTitle: 'Pengaturan',
+    settingsCloseTitle: 'Tutup',
+    themeLabel: 'Tema',
+    themeDark: 'Gelap',
+    themeLight: 'Terang',
+    adhanLabel: 'Suara Adzan',
+    adhanHint: 'Chrome saja — audio penuh saat waktu sholat tiba',
+    reportBugLabel: 'Laporkan Masalah'
   },
   en: {
     fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
@@ -196,7 +204,15 @@ const translations = {
     importTodoTitle: "Import to-dos (JSON)",
     leadtimeTitle: 'Notify before prayer time',
     eventRefTitle: 'Islamic date reference',
-    reportBugTitle: 'Report a problem'
+    reportBugTitle: 'Report a problem',
+    settingsTitle: 'Settings',
+    settingsCloseTitle: 'Close',
+    themeLabel: 'Theme',
+    themeDark: 'Dark',
+    themeLight: 'Light',
+    adhanLabel: 'Adhan Sound',
+    adhanHint: 'Chrome only — full audio at prayer time',
+    reportBugLabel: 'Report a Problem'
   },
   ar: {
     fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء',
@@ -242,7 +258,15 @@ const translations = {
     importTodoTitle: 'استيراد المهام (JSON)',
     leadtimeTitle: 'تنبيه قبل وقت الصلاة',
     eventRefTitle: 'مرجع تواريخ المناسبات الإسلامية',
-    reportBugTitle: 'الإبلاغ عن مشكلة'
+    reportBugTitle: 'الإبلاغ عن مشكلة',
+    settingsTitle: 'الإعدادات',
+    settingsCloseTitle: 'إغلاق',
+    themeLabel: 'المظهر',
+    themeDark: 'داكن',
+    themeLight: 'فاتح',
+    adhanLabel: 'صوت الأذان',
+    adhanHint: 'كروم فقط — أذان كامل عند دخول وقت الصلاة',
+    reportBugLabel: 'الإبلاغ عن مشكلة'
   }
 };
 
@@ -250,6 +274,7 @@ const translations = {
 
 let currentLang = localStorage.getItem('muslimboard-lang') || 'id';
 let currentMethod = localStorage.getItem('muslimboard-method') || '20'; // Default: Kemenag RI
+let currentTheme = localStorage.getItem('muslimboard-theme') || 'dark';
 let currentQuoteIndex = Math.floor(Math.random() * quotes[currentLang].length);
 let prayerTimes = null;
 let userLocation = null;
@@ -650,6 +675,16 @@ function updateLanguageUI() {
   $('.leadtime-icon').title = t.leadtimeTitle;
   $('#report-bug').title = t.reportBugTitle;
 
+  $('#settings-toggle').title = t.settingsTitle;
+  $('#settings-close').title = t.settingsCloseTitle;
+  $('#settings-panel-title').textContent = `⚙️ ${t.settingsTitle}`;
+  $('#theme-label').textContent = t.themeLabel;
+  $('#theme-dark-label').textContent = t.themeDark;
+  $('#theme-light-label').textContent = t.themeLight;
+  $('#adhan-label').textContent = t.adhanLabel;
+  $('#adhan-hint').textContent = t.adhanHint;
+  $('#report-bug-label').textContent = t.reportBugLabel;
+
   // Refresh weather description if data exists
   const weatherDesc = $('#weather-desc');
   const weatherTemp = $('#weather-temp');
@@ -1039,6 +1074,36 @@ function reportProblem() {
   window.open(`mailto:kontak@tukangweb.id?subject=${subject}&body=${body}`, '_self');
 }
 
+// ==================== OPTIONS PANEL (Theme & Adhan) ====================
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.body.classList.toggle('theme-light', theme === 'light');
+  localStorage.setItem('muslimboard-theme', theme);
+
+  const darkBtn = $('#theme-dark-btn');
+  const lightBtn = $('#theme-light-btn');
+  if (darkBtn) darkBtn.classList.toggle('active', theme === 'dark');
+  if (lightBtn) lightBtn.classList.toggle('active', theme === 'light');
+}
+
+function getAdhanEnabled() {
+  return localStorage.getItem('muslimboard-adhan') === '1';
+}
+
+function setAdhanEnabled(enabled) {
+  localStorage.setItem('muslimboard-adhan', enabled ? '1' : '0');
+  browserAPI.runtime.sendMessage({ type: 'SET_ADHAN_ENABLED', enabled }).catch(() => {});
+}
+
+function openSettingsPanel() {
+  $('#settings-overlay').style.display = 'flex';
+}
+
+function closeSettingsPanel() {
+  $('#settings-overlay').style.display = 'none';
+}
+
 // ==================== LOCATION & INIT ====================
 
 function getManualLocation() {
@@ -1405,6 +1470,19 @@ function setupEventListeners() {
 
   // Bug report
   $('#report-bug').addEventListener('click', reportProblem);
+
+  // Options panel
+  $('#settings-toggle').addEventListener('click', openSettingsPanel);
+  $('#settings-close').addEventListener('click', closeSettingsPanel);
+  $('#settings-overlay').addEventListener('click', (e) => {
+    if (e.target === $('#settings-overlay')) closeSettingsPanel();
+  });
+
+  $('#theme-dark-btn').addEventListener('click', () => applyTheme('dark'));
+  $('#theme-light-btn').addEventListener('click', () => applyTheme('light'));
+
+  $('#adhan-toggle').checked = getAdhanEnabled();
+  $('#adhan-toggle').addEventListener('change', (e) => setAdhanEnabled(e.target.checked));
 }
 
 // ==================== INIT ====================
@@ -1516,6 +1594,7 @@ function loadWallpaper() {
 
 async function init() {
   setupEventListeners();
+  applyTheme(currentTheme);
   $('#event-ref').style.display = currentLang === 'en' ? 'inline-block' : 'none';
   loadTodos();
   loadReminderState();

@@ -188,7 +188,44 @@
           <option value="en">English</option>
           <option value="ar">العربية</option>
         </select>
-        <button id="report-bug" class="report-bug-btn" title="Laporkan masalah">🐛</button>
+        <button id="settings-toggle" class="icon-btn" title="Pengaturan">⚙️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Options Panel -->
+  <div class="settings-overlay" id="settings-overlay" style="display:none">
+    <div class="settings-panel">
+      <div class="settings-panel-header">
+        <h3 id="settings-panel-title">⚙️ Pengaturan</h3>
+        <button id="settings-close" class="icon-btn" title="Tutup">✕</button>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <span class="settings-row-label" id="theme-label">Tema</span>
+        </div>
+        <div class="theme-toggle-group">
+          <button class="theme-btn active" id="theme-dark-btn" data-theme-value="dark">🌙 <span id="theme-dark-label">Gelap</span></button>
+          <button class="theme-btn" id="theme-light-btn" data-theme-value="light">☀️ <span id="theme-light-label">Terang</span></button>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <span class="settings-row-label" id="adhan-label">Suara Adzan</span>
+          <span class="settings-row-hint" id="adhan-hint">Chrome saja — audio penuh saat waktu sholat tiba</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="adhan-toggle">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-row settings-row-action">
+        <button id="report-bug" class="settings-action-btn" title="Laporkan masalah">
+          🐛 <span id="report-bug-label">Laporkan Masalah</span>
+        </button>
       </div>
     </div>
   </div>

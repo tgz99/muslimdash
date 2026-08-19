@@ -12,8 +12,20 @@ const prayerNames = {
   ar: { fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' }
 };
 
-let notifLang = 'id';
-let reminderLang = 'id';
+/**
+ * Settings live in chrome.storage.local rather than plain variables —
+ * a service worker can be torn down and woken again purely by an alarm
+ * event, which would silently reset any in-memory state back to defaults
+ * before the notification/adhan logic runs.
+ */
+async function getSettings() {
+  const stored = await browserAPI.storage.local.get(['notifLang', 'reminderLang', 'adhanEnabled']);
+  return {
+    notifLang: stored.notifLang || 'id',
+    reminderLang: stored.reminderLang || 'id',
+    adhanEnabled: stored.adhanEnabled === true
+  };
+}
 
 function showDailyReminderNotification(lang = 'id') {
   const title = lang === 'ar' ? 'الأعمال اليومية' : lang === 'en' ? 'Daily Deeds' : 'Amalan Harian';
@@ -55,6 +67,28 @@ function showPrayerNotification(prayerKey, lang = 'id') {
 }
 
 /**
+ * Play the adhan through an offscreen document — the only place in MV3
+ * that has a DOM/<audio> element, since the service worker itself
+ * doesn't. Firefox has no chrome.offscreen equivalent, so this is a
+ * Chrome-only enhancement; browserAPI.offscreen is simply undefined
+ * there and this becomes a no-op.
+ */
+async function playAdhan(prayerKey) {
+  if (!browserAPI.offscreen) return;
+  try {
+    await browserAPI.offscreen.createDocument({
+      url: `offscreen.html?prayer=${encodeURIComponent(prayerKey)}`,
+      reasons: ['AUDIO_PLAYBACK'],
+      justification: 'Play adhan (call to prayer) audio at prayer time'
+    });
+  } catch (e) {
+    // Most likely "single offscreen document" already exists — with
+    // prayers hours apart and auto-close after 30s of silence, this is
+    // not expected in practice, so just skip this occurrence.
+  }
+}
+
+/**
  * Replace all scheduled prayer alarms with a fresh set.
  * Called whenever the new-tab page recomputes prayer times
  * (on load, method change, or lead-time change).
@@ -86,14 +120,20 @@ async function rescheduleDailyReminder(hour, minute) {
   browserAPI.alarms.create('daily-reminder', { when: target.getTime(), periodInMinutes: 24 * 60 });
 }
 
-browserAPI.alarms.onAlarm.addListener((alarm) => {
+browserAPI.alarms.onAlarm.addListener(async (alarm) => {
+  const settings = await getSettings();
+
   if (alarm.name === 'daily-reminder') {
-    showDailyReminderNotification(reminderLang);
+    showDailyReminderNotification(settings.reminderLang);
     return;
   }
+
   if (!alarm.name.startsWith('prayer-')) return;
   const prayerKey = alarm.name.slice('prayer-'.length);
-  showPrayerNotification(prayerKey, notifLang);
+  showPrayerNotification(prayerKey, settings.notifLang);
+  if (settings.adhanEnabled) {
+    playAdhan(prayerKey);
+  }
 });
 
 if (browserAPI.notifications && browserAPI.notifications.onClicked) {
@@ -109,12 +149,15 @@ if (browserAPI.notifications && browserAPI.notifications.onClicked) {
 // reply that never comes, logging a spurious "message port closed" error.
 browserAPI.runtime.onMessage.addListener((message) => {
   if (message.type === 'SCHEDULE_PRAYER_ALARMS') {
-    notifLang = message.lang || 'id';
+    browserAPI.storage.local.set({ notifLang: message.lang || 'id' });
     rescheduleAlarms(message.schedule);
   }
   if (message.type === 'SCHEDULE_DAILY_REMINDER') {
-    reminderLang = message.lang || 'id';
+    browserAPI.storage.local.set({ reminderLang: message.lang || 'id' });
     rescheduleDailyReminder(message.hour, message.minute);
+  }
+  if (message.type === 'SET_ADHAN_ENABLED') {
+    browserAPI.storage.local.set({ adhanEnabled: !!message.enabled });
   }
 });
 

@@ -39,12 +39,16 @@ Semua di bawah ini **tidak pernah meninggalkan browser pengguna**, kecuali koord
 - Lokasi manual (jika diisi)
 - Cache wallpaper harian
 - Log error (maksimal 20 entri terakhir, hanya ditulis saat benar-benar terjadi error — bukan log aktivitas umum)
+- Preferensi tema (gelap/terang) dan suara adzan (aktif/nonaktif)
 
 ### 4. Notifikasi
 Notifikasi waktu sholat dijadwalkan secara lokal melalui `alarms` API browser dan ditampilkan lewat `notifications` API browser. Tidak ada data yang dikirim keluar untuk fitur ini.
 
 ### 5. Laporan Masalah (opsional, manual)
-Tombol 🐛 di dashboard membuka email (`mailto:`) berisi beberapa error terakhir yang tercatat lokal, versi extension, dan info browser — ditujukan ke kontak@tukangweb.id. **Tidak ada yang terkirim otomatis**: draft email hanya terbuka kalau pengguna sendiri yang klik tombolnya, dan pengguna bebas mengedit atau membatalkan sebelum benar-benar mengirim.
+Tombol 🐛 di dashboard (dalam menu ⚙️ Pengaturan) membuka email (`mailto:`) berisi beberapa error terakhir yang tercatat lokal, versi extension, dan info browser — ditujukan ke kontak@tukangweb.id. **Tidak ada yang terkirim otomatis**: draft email hanya terbuka kalau pengguna sendiri yang klik tombolnya, dan pengguna bebas mengedit atau membatalkan sebelum benar-benar mengirim.
+
+### 6. Suara Adzan (opsional, Chrome saja)
+Kalau diaktifkan lewat menu ⚙️ Pengaturan, file audio adzan (dibundel di dalam extension, bukan di-stream dari internet) diputar otomatis saat waktu sholat tiba. Di Chrome, ini memakai fitur `offscreen document` (bagian resmi Manifest V3) supaya suara tetap terputar walau tab dashboard sedang ditutup. Tidak ada data yang dikirim ke mana pun untuk fitur ini — murni pemutaran file lokal.
 
 ## Permission yang Diminta
 
@@ -53,6 +57,7 @@ Tombol 🐛 di dashboard membuka email (`mailto:`) berisi beberapa error terakhi
 | `notifications` | Menampilkan notifikasi waktu sholat |
 | `storage` | Menyimpan todo, preferensi, dan cache secara lokal |
 | `alarms` | Menjadwalkan notifikasi waktu sholat agar tetap berjalan walau tab ditutup |
+| `offscreen` | Memutar file audio adzan dari background service worker (Chrome), karena service worker tidak punya akses ke elemen `<audio>` secara langsung |
 
 Extension ini **tidak meminta** permission `geolocation` di manifest — akses lokasi memakai Geolocation API standar browser yang meminta izin langsung ke pengguna seperti situs web pada umumnya, dan bisa ditolak/dicabut kapan saja lewat pengaturan browser.
 
@@ -70,6 +75,7 @@ Semua konten yang ditampilkan di dashboard berasal dari sumber berikut. Tidak ad
 | Wallpaper latar | Bing Image of the Day (`bing.com`), fallback Picsum Photos (`picsum.photos`) | Gambar diambil real-time via endpoint publik, ditampilkan sementara di background tab pengguna sendiri — tidak diunduh permanen, disimpan ulang, atau didistribusikan ke pihak lain oleh extension |
 | Arah Kiblat | Dihitung lokal di `newtab.js` | Formula great-circle bearing ke koordinat Ka'bah (21.4225, 39.8262), bukan dari API eksternal |
 | Ikon extension | Dibuat sendiri (`icons/icon*.png`) | Bukan hasil dari layanan pihak ketiga |
+| Audio Adzan | [Internet Archive — "Adhan Recordings from Doha, Qatar"](https://archive.org/details/adhan.recordings.from.doha.qatar) | Lisensi **Public Domain Mark 1.0**, dibundel di dalam extension (`audio/adhan.mp3`, `audio/adhan-fajr.mp3`), bukan di-stream dari internet |
 
 Extension ini **tidak memodifikasi, menyimpan permanen, atau mengklaim hak cipta** atas konten dari layanan pihak ketiga di atas. Semua request dilakukan langsung dari browser pengguna (client-side), bukan lewat server kami.
 
