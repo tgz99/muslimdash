@@ -1210,26 +1210,31 @@ body::after {
    the root tokens (auto-cascades to every rule that already uses
    var(--text-light)/var(--text-muted)/var(--bg-card)/var(--secondary-color))
    plus explicit overrides for the many rgba(255,255,255,X) "white wash"
-   overlays that were hardcoded rather than token-driven — those would
-   read as invisible white-on-white if left alone on a light surface.
+   overlays that were hardcoded rather than token-driven.
+
+   Palette is warm parchment/sand, not stark white — every overlay,
+   border and shadow below reuses the same warm-umber base
+   (59, 47, 30, matching --text-light) at different alphas, rather than
+   neutral black/white, so the whole surface reads as one warm material
+   instead of grey glass with a light filter over it.
    ================================================================ */
 body.theme-light {
-  --bg-card: rgba(255, 255, 255, 0.88);
-  --text-light: #202521;
-  --text-muted: #5c6660;
-  --secondary-color: #9c7418;
-  --border: rgba(0, 0, 0, 0.12);
+  --bg-card: rgba(250, 243, 227, 0.86);
+  --text-light: #3b2f1e;
+  --text-muted: #7a6a51;
+  --secondary-color: #8a5a12;
+  --border: rgba(59, 47, 30, 0.14);
 }
 
 body.theme-light {
-  background: #f3f5f1;
+  background: #ede1c6;
 }
 
 body.theme-light::after {
   background:
-    radial-gradient(ellipse at top, rgba(26, 95, 63, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
-    rgba(255, 255, 255, 0.72);
+    radial-gradient(ellipse at top, rgba(26, 95, 63, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(138, 90, 18, 0.09) 0%, transparent 40%),
+    rgba(247, 238, 217, 0.76);
 }
 
 body.theme-light .card,
@@ -1255,7 +1260,7 @@ body.theme-light .settings-row {
 body.theme-light .card,
 body.theme-light .bottom-bar,
 body.theme-light .settings-panel {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(59, 40, 20, 0.10);
 }
 
 body.theme-light .location-manual-form,
@@ -1270,12 +1275,12 @@ body.theme-light .reminder-time-form,
 body.theme-light .reminder-item,
 body.theme-light .theme-toggle-group,
 body.theme-light .switch-slider {
-  background: rgba(0, 0, 0, 0.045);
+  background: rgba(59, 47, 30, 0.055);
 }
 
 body.theme-light .location-manual-form input,
 body.theme-light .reminder-time-form input[type="time"] {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(59, 47, 30, 0.06);
 }
 
 body.theme-light .prayer-item:hover,
@@ -1283,47 +1288,47 @@ body.theme-light #todo-input:focus,
 body.theme-light .quote-controls button:hover,
 body.theme-light .todo-io button:hover,
 body.theme-light .todo-io label:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(59, 47, 30, 0.095);
 }
 
 body.theme-light #manual-use-gps {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(59, 47, 30, 0.095);
 }
 
 body.theme-light #manual-use-gps:hover {
-  background: rgba(0, 0, 0, 0.14);
+  background: rgba(59, 47, 30, 0.16);
 }
 
 body.theme-light .todo-item {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(59, 47, 30, 0.04);
 }
 
 body.theme-light .todo-item:hover {
-  background: rgba(0, 0, 0, 0.055);
+  background: rgba(59, 47, 30, 0.065);
 }
 
 body.theme-light .todo-items::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(59, 47, 30, 0.2);
 }
 
 body.theme-light .reminder-check {
-  border-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(59, 47, 30, 0.22);
 }
 
 body.theme-light .quote-container {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(250, 243, 227, 0.62);
 }
 
 body.theme-light .prayer-method-select select option,
 body.theme-light .settings select option {
-  background: #ffffff;
-  color: #202521;
+  background: #f7efdb;
+  color: #3b2f1e;
 }
 
 body.theme-light .icon-btn:hover {
-  color: #7a5a12;
+  color: #6e480d;
 }
 
 body.theme-light .clock {
-  text-shadow: 0 2px 16px rgba(255, 255, 255, 0.6);
+  text-shadow: 0 2px 16px rgba(247, 238, 217, 0.7);
 }
