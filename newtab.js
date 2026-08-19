@@ -1,5 +1,5 @@
 /**
- * Muslim Dashboard - New Tab Script
+ * The Muslim Way - New Tab Script
  * Features: Prayer times, Quotes, Todo, Clock, Internet status
  */
 
@@ -1083,7 +1083,7 @@ function buildBugReportBody() {
   const version = (browserAPI.runtime.getManifest && browserAPI.runtime.getManifest().version) || 'unknown';
 
   const lines = [
-    `Muslim Dashboard v${version}`,
+    `The Muslim Way v${version}`,
     `Bahasa: ${currentLang}`,
     `Browser: ${navigator.userAgent}`,
     '',
@@ -1104,7 +1104,7 @@ function buildBugReportBody() {
 }
 
 function reportProblem() {
-  const subject = encodeURIComponent('Muslim Dashboard - Laporan Masalah');
+  const subject = encodeURIComponent('The Muslim Way - Laporan Masalah');
   const body = encodeURIComponent(buildBugReportBody());
   window.open(`mailto:kontak@tukangweb.id?subject=${subject}&body=${body}`, '_self');
 }

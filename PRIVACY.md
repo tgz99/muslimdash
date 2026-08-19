@@ -1,8 +1,8 @@
-# Privacy Policy — Muslim Dashboard
+# Privacy Policy — The Muslim Way
 
 _Terakhir diperbarui: 2026-08-19_
 
-Muslim Dashboard adalah extension browser (Firefox & Chrome) yang menampilkan dashboard Islami saat membuka tab baru. Kami sangat menghargai privasi pengguna. Kebijakan ini menjelaskan data apa yang diproses extension ini dan ke mana data tersebut mengalir.
+The Muslim Way adalah extension browser (Firefox & Chrome) yang menampilkan dashboard Islami saat membuka tab baru. Kami sangat menghargai privasi pengguna. Kebijakan ini menjelaskan data apa yang diproses extension ini dan ke mana data tersebut mengalir.
 
 ## Ringkasan
 
@@ -93,4 +93,4 @@ Pertanyaan seputar kebijakan ini bisa dikirim ke kontak@tukangweb.id.
 
 ## English Summary
 
-Muslim Dashboard is a browser extension with no backend server of its own. All data is stored locally in the browser (`localStorage`). Location coordinates (from the Geolocation API or manual entry) are sent directly to three third-party APIs to power prayer times (`api.aladhan.com`), weather (`api.open-meteo.com`), and location name lookup (`api.bigdatacloud.net`) — never to any server operated by us, since none exists. Wallpaper images are fetched from Bing and Picsum with no personal data attached. To-dos, preferences, and cached data stay in local browser storage and are never transmitted anywhere. The extension collects no accounts, analytics, or advertising data.
+The Muslim Way is a browser extension with no backend server of its own. All data is stored locally in the browser (`localStorage`). Location coordinates (from the Geolocation API or manual entry) are sent directly to three third-party APIs to power prayer times (`api.aladhan.com`), weather (`api.open-meteo.com`), and location name lookup (`api.bigdatacloud.net`) — never to any server operated by us, since none exists. Wallpaper images are fetched from Bing and Picsum with no personal data attached. To-dos, preferences, and cached data stay in local browser storage and are never transmitted anywhere. The extension collects no accounts, analytics, or advertising data.

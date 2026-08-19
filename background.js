@@ -1,5 +1,5 @@
 /**
- * Muslim Dashboard - Background Script
+ * The Muslim Way - Background Script
  * Schedules prayer-time notifications via the alarms API so they still
  * fire when the new-tab page isn't open.
  */
@@ -170,7 +170,7 @@ browserAPI.runtime.onMessage.addListener((message) => {
 });
 
 browserAPI.runtime.onInstalled.addListener(() => {
-  console.log('Muslim Dashboard installed');
+  console.log('The Muslim Way installed');
 });
 
-console.log('Muslim Dashboard background script loaded');
+console.log('The Muslim Way background script loaded');

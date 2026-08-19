@@ -1,4 +1,4 @@
-# Muslim Dashboard 🕌
+# The Muslim Way 🕌
 
 Extension browser untuk Firefox & Chrome yang menampilkan dashboard Islami saat membuka tab baru. Terinspirasi oleh MuslimBoard.
 
