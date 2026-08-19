@@ -877,19 +877,17 @@ body::after {
 }
 
 .report-bug-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  background: none;
+  border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 0.85rem;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: var(--transition);
+  font-size: 0.9rem;
+  padding: 4px;
   line-height: 1;
+  transition: var(--transition);
 }
 
 .report-bug-btn:hover {
-  border-color: var(--accent-red);
   color: var(--accent-red);
 }
 
