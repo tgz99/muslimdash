@@ -635,10 +635,9 @@ body::after {
 }
 
 .reminders-title {
-  font-size: 0.8rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--secondary-color);
-  letter-spacing: 0.2px;
 }
 
 .reminder-time-btn {
