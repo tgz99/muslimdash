@@ -338,27 +338,51 @@ function formatCountdown(ms) {
 // ==================== PRAYER TIMES CALCULATION ====================
 
 /**
- * Simplified prayer time calculation using standard formulas
- * This is a basic implementation - for production, consider using a proper library
+ * Simplified prayer time calculation (praytimes.org-style formulas) —
+ * a fallback for when the Aladhan API is unreachable, not the primary
+ * source. Validated against Aladhan's output (within a few minutes,
+ * which is expected variance between calculation methods).
  */
 function calculatePrayerTimes(latitude, longitude, date = new Date()) {
-  const times = {};
-  
-  // Julian date
   const jd = getJulianDate(date);
-  
-  // Sun declination and equation of time
   const sunPos = getSunPosition(jd);
-  
-  // Calculate prayer times
-  times.fajr = calculatePrayerTime(latitude, sunPos.declination, -18, sunPos.eqTime, date, longitude);
-  times.sunrise = calculatePrayerTime(latitude, sunPos.declination, -0.833, sunPos.eqTime, date, longitude);
-  times.dhuhr = calculatePrayerTime(latitude, sunPos.declination, 0, sunPos.eqTime, date, longitude, true);
-  times.asr = calculateAsr(latitude, sunPos.declination, sunPos.eqTime, date, longitude);
-  times.maghrib = calculatePrayerTime(latitude, sunPos.declination, -0.833, sunPos.eqTime, date, longitude, false, true);
-  times.isha = calculatePrayerTime(latitude, sunPos.declination, -17, sunPos.eqTime, date, longitude, false, true);
+
+  // Civil UTC offset for this exact date, in hours. getTimezoneOffset()
+  // is DST-aware — it already returns a different value on either side
+  // of a DST transition — so this automatically follows DST as long as
+  // the device's timezone matches the queried location's (true for the
+  // common "use my current location" case; a manually-entered location
+  // far from the device's own timezone isn't accounted for here).
+  const timezone = -date.getTimezoneOffset() / 60;
+
+  // Dhuhr computed this way is already UTC-referenced (the longitude
+  // term is baked into the "4 * -longitude" component), so every other
+  // prayer is just this ± an hour-angle offset, then shifted once into
+  // civil local time — no separate longitude adjustment needed anywhere
+  // else, and no per-prayer sign-guessing about morning vs evening.
+  const dhuhrUTC = 12 + (4 * -longitude - sunPos.eqTime) / 60;
+
+  const hourAngleOffset = (angle) => darccos(
+    (dsin(angle) - dsin(latitude) * dsin(sunPos.declination)) / (dcos(latitude) * dcos(sunPos.declination))
+  ) * 4 / 60; // degrees of hour-angle -> hours
+
+  const toLocal = (utcTime) => fixHour(utcTime + timezone);
+
+  const fajrOffset = hourAngleOffset(-18);
+  const sunriseOffset = hourAngleOffset(-0.833);
+  const maghribOffset = hourAngleOffset(-0.833);
+  const ishaOffset = hourAngleOffset(-17);
+  const asrOffset = hourAngleOffset(calculateAsrAngle(latitude, sunPos.declination));
+
+  const times = {};
+  times.fajr = toLocal(dhuhrUTC - fajrOffset);
+  times.sunrise = toLocal(dhuhrUTC - sunriseOffset);
+  times.dhuhr = toLocal(dhuhrUTC);
+  times.asr = toLocal(dhuhrUTC + asrOffset);
+  times.maghrib = toLocal(dhuhrUTC + maghribOffset);
+  times.isha = toLocal(dhuhrUTC + ishaOffset);
   // Imsak: conventional 10-minute margin before Fajr (no dedicated angle).
-  times.imsak = fixHour(times.fajr - 10 / 60);
+  times.imsak = toLocal(dhuhrUTC - fajrOffset - 10 / 60);
 
   return times;
 }
@@ -392,38 +416,15 @@ function darctan2(y, x) { return radToDeg(Math.atan2(y, x)); }
 function degToRad(d) { return d * Math.PI / 180; }
 function radToDeg(r) { return r * 180 / Math.PI; }
 
-function calculatePrayerTime(lat, decl, angle, eqTime, date, lng, isDhuhr = false, isMaghrib = false) {
-  let time;
-  
-  if (isDhuhr) {
-    time = 12 + (4 * -lng - eqTime) / 60;
-  } else if (isMaghrib) {
-    time = calculatePrayerTime(lat, decl, angle, eqTime, date, lng);
-  } else {
-    const D = darccos((dsin(angle) - dsin(lat) * dsin(decl)) / (dcos(lat) * dcos(decl)));
-    time = 12 + (isMorningAngle(angle) ? -D : D) * 4 / 60 + (4 * -lng - eqTime) / 60;
-  }
-  
-  // `time` above is a solar (longitude-based) local time, not the device's
-  // civil timezone. Convert it to UTC using the true solar offset (lng/15),
-  // then re-express it in the device's actual timezone so displayed times
-  // match the clock, not the sun.
-  const timezone = -date.getTimezoneOffset() / 60;
-  const utcTime = time - timezone;
-  const localTime = utcTime + (timezone + lng / 15);
-
-  return fixHour(localTime);
-}
-
-function calculateAsr(lat, decl, eqTime, date, lng) {
-  const shadow = 1; // Standard shadow ratio
-  const angle = -darctan2(1, shadow + dtan(Math.abs(lat - decl)));
-  return calculatePrayerTime(lat, decl, angle, eqTime, date, lng);
+// Sun altitude angle (degrees, positive) at which a shadow-ratio-1 Asr
+// criterion is met — always an afternoon/evening event, never inferred
+// from a sign.
+function calculateAsrAngle(lat, decl) {
+  return darctan2(1, 1 + dtan(Math.abs(lat - decl)));
 }
 
 function dtan(d) { return Math.tan(degToRad(d)); }
 function darccos(x) { return radToDeg(Math.acos(x)); }
-function isMorningAngle(angle) { return angle < 0; }
 
 function hourToTime(hour) {
   const h = Math.floor(hour);
