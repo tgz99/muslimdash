@@ -2,6 +2,16 @@
 
 Semua perubahan penting extension ini dari versi 1.2.1 sampai sekarang.
 
+## 1.6.2
+
+**Ditambahkan**
+- Footer di panel Pengaturan: nomor versi (dibaca langsung dari manifest, jadi gak pernah ketinggalan) + link ke landing page (tgz99.github.io/muslimdash).
+
+## 1.6.1
+
+**Diubah**
+- Author di manifest diganti jadi "Mas Gun".
+
 ## 1.6.0
 
 **Diubah**
