@@ -2,6 +2,11 @@
 
 Semua perubahan penting extension ini dari versi 1.2.1 sampai sekarang.
 
+## 1.6.4
+
+**Diubah**
+- Repo GitHub & GitHub Pages dipindah dari `muslimdash` jadi `themuslimway`, samain sama nama extension yang udah diganti sejak 1.5.0. Link "Kunjungi Website" di panel Pengaturan diupdate ke `tgz99.github.io/themuslimway`.
+
 ## 1.6.3
 
 **Diperbaiki**

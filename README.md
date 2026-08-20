@@ -43,7 +43,7 @@ Extension browser untuk Firefox & Chrome yang menampilkan dashboard Islami saat 
 ## Struktur File
 
 ```
-muslimdash/
+themuslimway/
 ├── manifest.json      # Konfigurasi extension (Manifest V3)
 ├── newtab.html         # Halaman dashboard
 ├── newtab.css          # Styling (dark & light theme)
