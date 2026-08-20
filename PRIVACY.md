@@ -1,6 +1,6 @@
 # Privacy Policy — The Muslim Way
 
-_Terakhir diperbarui: 2026-08-19_
+_Terakhir diperbarui: 2026-08-20_
 
 The Muslim Way adalah extension browser (Firefox & Chrome) yang menampilkan dashboard Islami saat membuka tab baru. Kami sangat menghargai privasi pengguna. Kebijakan ini menjelaskan data apa yang diproses extension ini dan ke mana data tersebut mengalir.
 
@@ -30,7 +30,10 @@ Kami tidak mengontrol kebijakan privasi masing-masing layanan di atas — silaka
 ### 2. Wallpaper
 Setiap buka tab baru, extension mengambil gambar latar dari **Bing Image of the Day** (`bing.com`) atau, jika gagal, dari **Picsum Photos** (`picsum.photos`). Tidak ada data pribadi yang dikirim ke layanan ini — hanya permintaan gambar biasa.
 
-### 3. Data Tersimpan Lokal (`localStorage`)
+### 3. Font
+Setiap buka tab baru, extension memuat stylesheet font dari **Google Fonts** (`fonts.googleapis.com`, file font dari `fonts.gstatic.com`). Seperti request gambar/font pihak ketiga pada umumnya, ini membuat alamat IP pengguna terlihat oleh Google. Tidak ada data lain (lokasi, todo, dll) yang ikut dikirim — hanya permintaan font biasa.
+
+### 4. Data Tersimpan Lokal (`localStorage`)
 Semua di bawah ini **tidak pernah meninggalkan browser pengguna**, kecuali koordinat lokasi yang memang dikirim ke API pada tabel di atas:
 
 - Todo list
@@ -41,10 +44,10 @@ Semua di bawah ini **tidak pernah meninggalkan browser pengguna**, kecuali koord
 - Log error (maksimal 20 entri terakhir, hanya ditulis saat benar-benar terjadi error — bukan log aktivitas umum)
 - Preferensi tema (gelap/terang), notifikasi waktu sholat (aktif/nonaktif), dan suara adzan (aktif/nonaktif)
 
-### 4. Notifikasi
+### 5. Notifikasi
 Notifikasi waktu sholat dijadwalkan secara lokal melalui `alarms` API browser dan ditampilkan lewat `notifications` API browser. Tidak ada data yang dikirim keluar untuk fitur ini.
 
-### 5. Laporan Masalah (opsional, manual)
+### 6. Laporan Masalah (opsional, manual)
 Tombol 🐛 di dashboard (dalam menu ⚙️ Pengaturan) membuka email (`mailto:`) berisi beberapa error terakhir yang tercatat lokal, versi extension, dan info browser — ditujukan ke kontak@tukangweb.id. **Tidak ada yang terkirim otomatis**: draft email hanya terbuka kalau pengguna sendiri yang klik tombolnya, dan pengguna bebas mengedit atau membatalkan sebelum benar-benar mengirim.
 
 ### 6. Suara Adzan (opsional, Chrome saja)
@@ -76,6 +79,7 @@ Semua konten yang ditampilkan di dashboard berasal dari sumber berikut. Tidak ad
 | Arah Kiblat | Dihitung lokal di `newtab.js` | Formula great-circle bearing ke koordinat Ka'bah (21.4225, 39.8262), bukan dari API eksternal |
 | Ikon extension | Dibuat sendiri (`icons/icon*.png`) | Bukan hasil dari layanan pihak ketiga |
 | Audio Adzan | [Internet Archive — "Adhan Recordings from Doha, Qatar"](https://archive.org/details/adhan.recordings.from.doha.qatar) | Lisensi **Public Domain Mark 1.0**, dibundel di dalam extension (`audio/adhan.mp3`, `audio/adhan-fajr.mp3`), bukan di-stream dari internet |
+| Font | Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) | Dimuat tiap buka tab baru, alamat IP pengguna terlihat oleh Google — tidak ada data lain yang ikut dikirim |
 
 Extension ini **tidak memodifikasi, menyimpan permanen, atau mengklaim hak cipta** atas konten dari layanan pihak ketiga di atas. Semua request dilakukan langsung dari browser pengguna (client-side), bukan lewat server kami.
 
@@ -93,4 +97,4 @@ Pertanyaan seputar kebijakan ini bisa dikirim ke kontak@tukangweb.id.
 
 ## English Summary
 
-The Muslim Way is a browser extension with no backend server of its own. All data is stored locally in the browser (`localStorage`). Location coordinates (from the Geolocation API or manual entry) are sent directly to three third-party APIs to power prayer times (`api.aladhan.com`), weather (`api.open-meteo.com`), and location name lookup (`api.bigdatacloud.net`) — never to any server operated by us, since none exists. Wallpaper images are fetched from Bing and Picsum with no personal data attached. To-dos, preferences, and cached data stay in local browser storage and are never transmitted anywhere. The extension collects no accounts, analytics, or advertising data.
+The Muslim Way is a browser extension with no backend server of its own. All data is stored locally in the browser (`localStorage`). Location coordinates (from the Geolocation API or manual entry) are sent directly to three third-party APIs to power prayer times (`api.aladhan.com`), weather (`api.open-meteo.com`), and location name lookup (`api.bigdatacloud.net`) — never to any server operated by us, since none exists. Wallpaper images are fetched from Bing and Picsum with no personal data attached. Fonts are loaded from Google Fonts on every new tab, which exposes the user's IP to Google like any third-party font/image request, but no other data. To-dos, preferences, and cached data stay in local browser storage and are never transmitted anywhere. The extension collects no accounts, analytics, or advertising data.

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "The Muslim Way",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "Islamic dashboard on every new tab: prayer times, qibla direction, upcoming Islamic events, daily reminders, todo & weather.",
   "author": "Mas Gun",
   "icons": {

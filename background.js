@@ -85,9 +85,9 @@ async function playAdhan(prayerKey) {
       justification: 'Play adhan (call to prayer) audio at prayer time'
     });
   } catch (e) {
-    // Most likely "single offscreen document" already exists — with
-    // prayers hours apart and auto-close after 30s of silence, this is
-    // not expected in practice, so just skip this occurrence.
+    // "single offscreen document" already exists — offscreen.js closes
+    // it itself once playback ends, so this should only happen if a
+    // previous playback is still running when the next prayer fires.
   }
 }
 

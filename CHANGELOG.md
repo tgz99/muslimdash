@@ -2,6 +2,14 @@
 
 Semua perubahan penting extension ini dari versi 1.2.1 sampai sekarang.
 
+## 1.6.5
+
+**Diperbaiki**
+- Suara adzan cuma bunyi sekali abis extension/browser start, abis itu bisu terus. Dokumen offscreen (tempat audio diputar) gak pernah ditutup, jadi panggilan berikutnya buat prayer selanjutnya gagal diem-diem (dibatasi 1 dokumen offscreen aktif per waktu). Sekarang ditutup otomatis begitu audio selesai/gagal diputar.
+
+**Diubah**
+- Privacy policy (PRIVACY.md & privacy.html) diupdate: Google Fonts (dimuat tiap buka tab baru) sekarang didisclose sebagai pihak ketiga yang dikontak, sebelumnya kelewat kesebut.
+
 ## 1.6.4
 
 **Diubah**
