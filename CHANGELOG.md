@@ -2,6 +2,11 @@
 
 Semua perubahan penting extension ini dari versi 1.2.1 sampai sekarang.
 
+## 1.6.3
+
+**Diperbaiki**
+- Notifikasi/adzan yang jadwalnya udah lewat gak lagi nongol pas browser baru dibuka lagi (misal komputer mati pas waktu Maghrib). `chrome.alarms` tetap nge-fire alarm yang telat begitu browser nyala — sekarang alarm yang telat >1 menit dari jadwal aslinya di-skip.
+
 ## 1.6.2
 
 **Ditambahkan**

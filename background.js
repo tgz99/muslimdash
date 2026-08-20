@@ -132,15 +132,29 @@ async function rescheduleDailyReminder(hour, minute) {
   browserAPI.alarms.create('daily-reminder', { when: target.getTime(), periodInMinutes: 24 * 60 });
 }
 
-browserAPI.alarms.onAlarm.addListener(async (alarm) => {
-  const settings = await getSettings();
+/**
+ * chrome.alarms fires missed alarms as soon as the browser next starts,
+ * even hours late (e.g. computer was off through Maghrib). A prayer/adhan
+ * alert that far past its scheduled time is no longer useful — skip it
+ * instead of surprising the user with a stale notification.
+ */
+const STALE_ALARM_THRESHOLD_MS = 60 * 1000;
 
+function isStale(alarm) {
+  return Date.now() - alarm.scheduledTime > STALE_ALARM_THRESHOLD_MS;
+}
+
+browserAPI.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'daily-reminder') {
+    if (isStale(alarm)) return;
+    const settings = await getSettings();
     showDailyReminderNotification(settings.reminderLang);
     return;
   }
 
   if (alarm.name.startsWith('adhan-')) {
+    if (isStale(alarm)) return;
+    const settings = await getSettings();
     if (settings.adhanEnabled) {
       playAdhan(alarm.name.slice('adhan-'.length));
     }
@@ -148,7 +162,9 @@ browserAPI.alarms.onAlarm.addListener(async (alarm) => {
   }
 
   if (!alarm.name.startsWith('prayer-')) return;
+  if (isStale(alarm)) return;
   const prayerKey = alarm.name.slice('prayer-'.length);
+  const settings = await getSettings();
   if (settings.prayerAlertEnabled) {
     showPrayerNotification(prayerKey, settings.notifLang);
   }
